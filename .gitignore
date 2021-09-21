@@ -1,5 +1,5 @@
 *.swp
 utility
-*.terraform*
-.terraform*
 .utility*
+*terraform*
+.terraform*
