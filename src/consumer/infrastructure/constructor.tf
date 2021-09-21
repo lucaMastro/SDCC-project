@@ -39,11 +39,6 @@ resource "aws_sqs_queue" "send_messages_sqs_queue" {
 }
 
 # ----------------------------------------------------------
-# rds_instance
-
-
-
-# ----------------------------------------------------------
 # roles
 
 resource "aws_iam_role" "registration_login_iam_role" {
