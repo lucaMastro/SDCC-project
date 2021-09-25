@@ -2,6 +2,11 @@
 # Imports
 import sys
 import boto3
+import functionalities.getUsrList as usr 
+import functionalities.Message as mess 
+import functionalities.readMessages as read 
+import functionalities.registrationLogin as regLog 
+import functionalities.sendMessage as send 
 
 #............................................................
 # Global variables
@@ -14,15 +19,26 @@ username = ''
 def exitSelected():
     return 0
 
-def signInSelected():
-    #@TODO
-    input('signin done, press a key to continue')
-    return 1
+def signInSelected(operationCode):
+    
+    # following function returns the lambda function return value. It's
+    # a Boolean value:
+    #   True stands for registration done
+    #   False stands for registration problem
+    response = regLog.registrationLogin(operationCode)
+    
+    if response == 'true': 
+        input('signin done, press a key to continue')
+        return 1
+    else:
+        input('username still present retry')
+        return None
 
-def loginSelected():
+def loginSelected(operationCode):
     #@TODO
     global username
-    username = 'Luca'
+    #username = 'Luca'
+    regLog.registrationLogin(operationCode)
 
     input('Login has been done successfully. Press a key to continue')
     return 2
@@ -59,8 +75,9 @@ def showMainMenu():
     }
     operation = int(input("Choose an operation: "))
     try:
-        return mainMenuOptions[operation]()
-    except:
+        return mainMenuOptions[operation](operation)
+    except Exception as e:
+        print(str(e))
         print("Il valore inserito non è accettabile. Riprova")
         return -1
 
@@ -135,7 +152,6 @@ if __name__ == '__main__':
         if check == 0: #user selected exit procedure 
             sys.exit()
              
-
         check = showMainMenu()
 
     #restoring default value of check, and start the logged user menu loop

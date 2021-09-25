@@ -11,27 +11,7 @@ provider "aws" {
 }
 
 # ----------------------------------------------------------
-# sqs-queues
-
-resource "aws_sqs_queue" "reg_log_sqs_queue" {
-  name = "reg_log_sqs_queue"
-
-  # how many seconds message is retained: 24h
-  message_retention_seconds = 86400 
-}
-
-
-resource "aws_sqs_queue" "usr_list_sqs_queue" {
-  name = "usr_list_sqs_queue"
-  message_retention_seconds = 86400  
-}
-
-
-resource "aws_sqs_queue" "read_messages_sqs_queue" {
-  name = "read_messages_sqs_queue"
-  message_retention_seconds = 86400  
-}
-
+# sqs-queue
 
 resource "aws_sqs_queue" "send_messages_sqs_queue" {
   name = "send_messages_sqs_queue"
@@ -160,7 +140,7 @@ resource "aws_iam_policy" "s3_write_policy" {
     {
             "Effect": "Allow",
             "Action": [
-              "s3:GetObject",
+              "s3:PutObject",
             ],
             "Resource": "arn:aws:s3:::*/*"
     }
@@ -216,32 +196,28 @@ resource "aws_iam_policy" "lambda_logging" {
 
 # reg_log 
 
-resource "aws_iam_role_policy_attachment" "reg_log_policy_attach" {
+resource "aws_iam_role_policy_attachment" "reg_log_policy_log_attach" {
   role = aws_iam_role.registration_login_iam_role.name
-  policy_arn = aws_iam_policy.sqs_policy.arn
+  policy_arn = aws_iam_policy.lambda_logging.arn
 }
-# missing rds 
 
 
 # usr_list
-
-resource "aws_iam_role_policy_attachment" "usr_list_policy_attach_sqs" {
+resource "aws_iam_role_policy_attachment" "usr_list_policy_log_attach" {
   role       = aws_iam_role.usr_list_iam_role.name
-  policy_arn = aws_iam_policy.sqs_policy.arn
+  policy_arn = aws_iam_policy.lambda_logging.arn
 }
-# missing rds 
 
 
 # read_message 
 
-resource "aws_iam_role_policy_attachment" "read_message_policy_attach_sqs" {
-  role       = aws_iam_role.read_message_iam_role.name
-  policy_arn = aws_iam_policy.sqs_policy.arn
-}
-
 resource "aws_iam_role_policy_attachment" "read_message_policy_attach_s3_read" {
   role       = aws_iam_role.read_message_iam_role.name
   policy_arn = aws_iam_policy.s3_read_policy.arn
+}
+resource "aws_iam_role_policy_attachment" "read_message_policy_log_attach" {
+  role       = aws_iam_role.read_message_iam_role.name
+  policy_arn = aws_iam_policy.lambda_logging.arn
 }
 
 
@@ -257,11 +233,16 @@ resource "aws_iam_role_policy_attachment" "send_message_policy_attach_s3_write" 
   policy_arn = aws_iam_policy.s3_write_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "send_message_policy_log_attach" {
+  role       = aws_iam_role.send_message_iam_role.name
+  policy_arn = aws_iam_policy.lambda_logging.arn
+}
+
 # ----------------------------------------------------------
 # Lambda functions
 
 resource "aws_lambda_function" "sign_log_in" {
-   function_name = "registration_and_login"
+   function_name = "sign_log_in"
 
    s3_bucket = "source-bucket-sdcc-20-21"
    s3_key    = "sources-1.0.zip"
@@ -310,3 +291,11 @@ resource "aws_lambda_function" "send_message" {
    role = aws_iam_role.send_message_iam_role.arn
 }
 
+
+#----------------------------------------------------------
+# map for send_message input
+
+resource "aws_lambda_event_source_mapping" "read_messages_source_map" {
+  event_source_arn = aws_sqs_queue.send_messages_sqs_queue.arn
+  function_name    = aws_lambda_function.send_message.arn
+}

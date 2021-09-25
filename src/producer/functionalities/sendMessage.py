@@ -17,7 +17,7 @@ def getReceiversList():
                 valid_answer = True 
                 print()
         
-            else if (tmp == 'no'):
+            elif (tmp == 'no'):
                 valid_answer = True 
                 other_user = False
 

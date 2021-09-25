@@ -1,17 +1,17 @@
 #!/bin/sh
 
 root=`pwd`
-buckets_creator_path=$root/buckets-creator
-buckets_object_upload_path=$root/src-upload
+buckets_path=$root/buckets-creator
 infrastructure_path=$root/infrastructure 
 db_path=$root/db 
+src_path=$root/python_source
 
 # delete sources:
-cd $buckets_object_upload_path 
+cd $src_path 
 echo 'yes' | terraform destroy
 
 # delete buckets:
-cd $buckets_creator_path 
+cd $buckets_path  
 echo 'yes' | terraform destroy 
 
 # delete infrastucture:
