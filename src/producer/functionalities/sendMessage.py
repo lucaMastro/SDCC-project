@@ -12,7 +12,7 @@ def getReceiversList():
         # ask for another user
         valid_answer = False
         while not valid_answer:
-            tmp = inpu("do you want to add another receiver? (yes, no)")
+            tmp = input("do you want to add another receiver? (yes, no)")
             if (tmp == 'yes'):
                 valid_answer = True 
                 print()
@@ -34,10 +34,10 @@ def sendMessage(sender):
     text = input("Give me the text: ")
 
     sqs = boto3.resource('sqs')
-    queue = sqs.get_queue_by_name(QueueName='send_message_sqs_queue')
+    queue = sqs.get_queue_by_name(QueueName='send_messages_sqs_queue')
 
     for rec in receivers:
-        queue.send_message(MessageBody = text, Attributes = {
+        queue.send_message(MessageBody = text, MessageAttributes = {
             'From' : {
                 'StringValue' : sender,
                 'DataType' : 'String'
@@ -47,7 +47,9 @@ def sendMessage(sender):
                 'DataType' : 'String'
                 },
             'Object' : {
-                'StringValue' : sender,
+                'StringValue' : object_,
                 'DataType' : 'String'
                 }
             })
+
+    print("Messages sent")

@@ -11,7 +11,8 @@ cd $src_path
 echo 'yes' | terraform destroy
 
 # delete buckets:
-cd $buckets_path  
+cd $buckets_path
+aws s3 rm s3://message-bucket-sdcc-20-21 --recursive
 echo 'yes' | terraform destroy 
 
 # delete infrastucture:

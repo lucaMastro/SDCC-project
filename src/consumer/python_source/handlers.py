@@ -2,6 +2,7 @@ import boto3
 import mysql.connector 
 
 import host as h
+import Message as msg 
 
 #---------------------------------------------
 def connectToDb():
@@ -29,6 +30,13 @@ def performeRegistration(usr, pw):
         print('The exception is: ', str(e))
     finally:
         conn.close()
+
+    # create a folder for the user:
+    s3 = boto3.client('s3')
+    bucket_name = "message-bucket-sdcc-20-21"
+    folder_name = usr 
+    s3.put_object(Bucket=bucket_name, Key=(folder_name+'/'))
+
     return a
     
 def performeLogin(usr, pw):
@@ -87,12 +95,29 @@ def users_list(event, context):
 
 #---------------------------------------------
 
-def read_messages():
+def read_messages(event, context):
     #TODO
     return 0
 
-def send_message():
-    #TODO
-    return 0
+#---------------------------------------------
 
+def send_message(event, context):
+    for record in event['Records']:
+
+        body = record['body']
+        sender = record['messageAttributes']['From']['stringValue']
+        receiver = record['messageAttributes']['To']['stringValue']
+        obj = record['messageAttributes']['Object']['stringValue']
+
+        rec_msg = msg.Message(receiver, sender, obj, body)
+        
+        key = "{}/{}".format(receiver, context.aws_request_id)
+        s3 = boto3.resource('s3')
+        bucket = s3.Object('message-bucket-sdcc-20-21', key)
+        data = str(rec_msg)
+        bucket.put(Body=data.encode('utf-8'))
+
+    return True
+
+#---------------------------------------------
 

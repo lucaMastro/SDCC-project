@@ -3,7 +3,6 @@
 import sys
 import boto3
 import functionalities.getUsrList as usr 
-import functionalities.Message as mess 
 import functionalities.readMessages as read 
 import functionalities.registrationLogin as regLog 
 import functionalities.sendMessage as send 
@@ -115,6 +114,8 @@ def readNewMessages():
 
 def sendMessage():
     #@TODO
+    global username 
+    print(send.sendMessage(username))
     input('send done, press a key to continue')
     return 4
 

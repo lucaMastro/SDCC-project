@@ -201,6 +201,11 @@ resource "aws_iam_role_policy_attachment" "reg_log_policy_log_attach" {
   policy_arn = aws_iam_policy.lambda_logging.arn
 }
 
+resource "aws_iam_role_policy_attachment" "reg_loge_policy_attach_s3_write" {
+  role = aws_iam_role.registration_login_iam_role.name
+  policy_arn = aws_iam_policy.s3_write_policy.arn
+}
+
 
 # usr_list
 resource "aws_iam_role_policy_attachment" "usr_list_policy_log_attach" {

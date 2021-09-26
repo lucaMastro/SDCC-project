@@ -89,16 +89,6 @@ DELIMITER ;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
-
--- -----------------------------------------------------
--- Data for table `users_db`.`users`
--- -----------------------------------------------------
-START TRANSACTION;
-USE `users_db`;
-INSERT INTO `users_db`.`users` (`username`, `password`) VALUES ('Luca', 'prova');
-
-COMMIT;
-
 USE `users_db`;
 
 DELIMITER $$
