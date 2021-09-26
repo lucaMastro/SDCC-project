@@ -1,11 +1,18 @@
-import boto3
+from getpass import getpass 
+import boto3 
+import json
 
 def getUsrList():
-    
-    sqs = boto3.resource('sqs')
-    queue = sqs.get_queue_by_name(QueueName='usr_list_sqs_queue')
 
-    returned = queue.sendMessage(body='')
+    client = boto3.client('lambda')
+    response = client.invoke( FunctionName='users_list',
+            InvocationType='RequestResponse',
+            LogType='Tail',
+            Payload=json.dumps({}), )
 
-    print(returned)
+    payload = response['Payload'].read().decode('utf-8')
+
+    print(payload)
+    input()
+    return payload
 

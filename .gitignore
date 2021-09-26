@@ -3,3 +3,5 @@ utility
 .utility*
 *terraform*
 .terraform*
+*.pyc
+test-env

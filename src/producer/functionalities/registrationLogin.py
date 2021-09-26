@@ -14,7 +14,7 @@ def registrationLogin(operationCode):
     
     if operationCode == 1:
         operation = 'Registration'
-    if operationCode == 2:
+    elif operationCode == 2:
         operation = 'Login'
 
     input_params = {}
@@ -29,6 +29,7 @@ def registrationLogin(operationCode):
             Payload=json.dumps(input_params), )
 
     payload = response['Payload'].read().decode('utf-8')
-    print(payload)
-    return payload
+
+    # if it's a login, i have to trace username value
+    return [payload, user]
 

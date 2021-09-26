@@ -54,7 +54,7 @@ DROP procedure IF EXISTS `users_db`.`log_in`;
 
 DELIMITER $$
 USE `users_db`$$
-CREATE PROCEDURE `log_in` (in usr varchar(45), in pass varchar(45), out ok bool)
+CREATE PROCEDURE `log_in` (in usr varchar(45), in pass varchar(45))
 BEGIN
 	declare pw varchar(45);
     select password
@@ -63,9 +63,8 @@ BEGIN
     into pw;
     
     if pw is null or pw != pass then
-		set ok = False;
-    else
-		set ok = True;
+		signal sqlstate '45999'
+		set message_text = "Error: wrong username or password.";
     end if;    
 END$$
 
@@ -121,7 +120,7 @@ BEGIN
     
     if is_present is not null then
 		signal sqlstate '45999'
-		set message_text = "error: username still present.";
+		set message_text = "Error: username still present.";
     end if;
 
 END$$

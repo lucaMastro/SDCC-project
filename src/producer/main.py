@@ -25,23 +25,31 @@ def signInSelected(operationCode):
     # a Boolean value:
     #   True stands for registration done
     #   False stands for registration problem
-    response = regLog.registrationLogin(operationCode)
-    
-    if response == 'true': 
-        input('signin done, press a key to continue')
+    response_list = regLog.registrationLogin(operationCode)
+    lambda_response = response_list[0]
+
+    if lambda_response == 'true': 
+        input('Signin done, press a key to continue')
         return 1
     else:
-        input('username still present retry')
+        input('Username still present retry')
         return None
 
 def loginSelected(operationCode):
-    #@TODO
     global username
-    #username = 'Luca'
-    regLog.registrationLogin(operationCode)
+    
+    response_list = regLog.registrationLogin(operationCode)
+    lambda_response = response_list[0]
+    username = response_list[1]
 
-    input('Login has been done successfully. Press a key to continue')
-    return 2
+    print('response = .', lambda_response)
+    if lambda_response == 'true': 
+        input('Login has been done successfully. Press a key to continue')
+        return 2
+    else:
+        input('Wrong username or password')
+        return None
+
 
 
 def showMainMenu():
@@ -90,6 +98,8 @@ def logOut():
 
 def getUsersList():
     #@TODO
+    a = usr.getUsrList()
+    print(a)
     input('list done, press a key to continue')
     return 1
 
@@ -135,9 +145,11 @@ def showMenu():
             4 : sendMessage
     }
     operation = int(input("Choose an operation: "))
+    print(operation)
     try:
         return menuOptions[operation]()
-    except:
+    except Exception as e:
+        print(str(e))
         print("Il valore inserito non è accettabile. Riprova")
         return -1
 

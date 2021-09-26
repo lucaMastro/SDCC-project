@@ -12,6 +12,7 @@ def connectToDb():
         user='admin',
         password='sdcc-db-admin')
 
+#---------------------------------------------
 
 def performeRegistration(usr, pw):
     conn = connectToDb()
@@ -30,10 +31,22 @@ def performeRegistration(usr, pw):
         conn.close()
     return a
     
-
 def performeLogin(usr, pw):
-    #TODO
-    return 
+    conn = connectToDb()
+    conn._open_connection()
+    
+    args = (usr, pw)
+    cursor = conn.cursor()
+    try:
+        cursor.callproc("log_in", args)
+        a = True
+    except Exception as e:
+        a = False
+        # for logging 
+        print('The exception is: ', str(e))
+    finally:
+        conn.close()
+    return a
 
 def sign_in_log_in(event, context):
     operation = event['Operation']
@@ -50,9 +63,29 @@ def sign_in_log_in(event, context):
 
 #---------------------------------------------
 
-def users_list():
+def users_list(event, context):
     #TODO
-    return 0
+    conn = connectToDb()
+    conn._open_connection()
+    
+    cursor = conn.cursor()
+    try:
+        cursor.callproc("get_user_list")
+        l = []
+        for result in cursor.stored_results():
+            tmp = result.fetchall()
+            for usr in tmp:
+                l.append(usr[0])
+
+    except Exception as e:
+        l = None
+        # for logging 
+        print('The exception is: ', str(e))
+    finally:
+        conn.close()
+    return l
+
+#---------------------------------------------
 
 def read_messages():
     #TODO
