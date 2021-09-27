@@ -26,12 +26,28 @@ def getReceiversList():
 
     return rec_list 
 
-        
 
-def sendMessage(sender):
-    receivers = getReceiversList() 
+def getMsgBody():
+    lines = ''
+    while True:
+        l = input()
+        if l == '':
+            break
+        else:
+            lines += l + '\n'
+
+    print('\nSending message(s)...')
+    return lines 
+
+
+        
+def sendMessage(sender, receivers = None):
+    # usr list not None when called by Cli client
+    if receivers == None:
+        receivers = getReceiversList() 
     object_ = input("Give me the object: ")
-    text = input("Give me the text: ")
+    print('Give me message text (to stop input, insert a blank line):')
+    text = getMsgBody() 
 
     sqs = boto3.resource('sqs')
     queue = sqs.get_queue_by_name(QueueName='send_messages_sqs_queue')
@@ -52,4 +68,4 @@ def sendMessage(sender):
                 }
             })
 
-    print("Messages sent")
+    print("Message(s) sent")

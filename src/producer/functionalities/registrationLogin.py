@@ -4,12 +4,14 @@ import json
 
 # same function to perform registration and login: getting username and
 # password and modify input value to specify if it's a registration or a login
-# operation
+# operation. The user param is None in graphic client, otherwise it's given at
+# function invocation
 
-def registrationLogin(operationCode):
+def registrationLogin(operationCode, user=None):
     input_params = {}
 
-    user = input("Give me the username: ")
+    if (user == None):
+        user = input("Give me the username: ")
     pw = getpass("Give me the password: ")
     
     if operationCode == 1:

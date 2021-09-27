@@ -12,7 +12,5 @@ def getUsrList():
 
     payload = response['Payload'].read().decode('utf-8')
 
-    print(payload)
-    input()
     return payload
 
