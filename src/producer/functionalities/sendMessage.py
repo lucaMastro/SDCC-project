@@ -41,13 +41,18 @@ def getMsgBody():
 
 
         
-def sendMessage(sender, receivers = None):
+def sendMessage(sender, receivers = None, graphicsInput = None):
     # usr list not None when called by Cli client
-    if receivers == None:
-        receivers = getReceiversList() 
-    object_ = input("Give me the object: ")
-    print('Give me message text (to stop input, insert a blank line):')
-    text = getMsgBody() 
+    if graphicsInput == None:
+        if receivers == None:
+            receivers = getReceiversList() 
+        object_ = input("Give me the object: ")
+        print('Give me message text (to stop input, insert a blank line):')
+        text = getMsgBody() 
+    else:
+        object_ = graphicsInput['object']
+        text = graphicsInput['body']
+
 
     sqs = boto3.resource('sqs')
     queue = sqs.get_queue_by_name(QueueName='send_messages_sqs_queue')
@@ -68,4 +73,5 @@ def sendMessage(sender, receivers = None):
                 }
             })
 
-    print("Message(s) sent")
+    if (graphicsInput == None):
+        print("Message(s) sent")

@@ -1,12 +1,11 @@
 #............................................................
 # Imports
 import sys
-import boto3
 import functionalities.getUsrList as usr 
 import functionalities.readMessages as read 
 import functionalities.registrationLogin as regLog 
 import functionalities.sendMessage as send 
-import functionalities.GraphicClient as graph
+import graphic as graph
 
 #............................................................
 # Global variables
@@ -51,44 +50,6 @@ def loginSelected(operationCode, user=None):
         return None
 
 
-
-def showMainMenu():
-    clear()
-    print("......................................................................................")
-    print("......................................................................................")
-    print("................__ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __..............")
-    print("...............|                                                        |.............")
-    print("...............|                   SYSTEM ACCESS POINT                  |.............")
-    print("...............|__ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __ __|.............")
-    print("......................................................................................")
-    print("......................................................................................")
-    print("..........................   Welcome! Choose an option   .............................")
-    print("......................................................................................")
-    print("......................................................................................")
-    print(".................._________..........._________..........._________...................")
-    print(".................|         |.........|         |.........|         |..................")
-    print(".................|   EXIT  |.........| SIGN IN |.........|  LOGIN  |..................")
-    print(".................|   [0]   |.........|   [1]   |.........|   [2]   |..................")
-    print(".................|_________|.........|_________|.........|_________|..................")
-    print("......................................................................................")
-    print("......................................................................................")
-    print("......................................................................................")
-    #need a try for invalid numbers
-    mainMenuOptions = {
-            0 : exitSelected,
-            1 : signInSelected,
-            2 : loginSelected
-    }
-    operation = int(input("Choose an operation: "))
-    try:
-        return mainMenuOptions[operation](operation)
-    except Exception as e:
-        print(str(e))
-        print("Il valore inserito non è accettabile. Riprova")
-        return -1
-
-
-
 def logOut():
     #@TODO
     input('log out done, press a key to continue')
@@ -114,7 +75,8 @@ def readNewMessages():
 def sendMessage(usr_list = None):
     # param usr_list is not None only when is invoked by CLI-client
     global username 
-    print(send.sendMessage(username, usr_list))
+    #print(send.sendMessage(username, usr_list))
+    send.sendMessage(username, usr_list)
     input('send done, press a key to continue')
     return 4
 
@@ -123,55 +85,6 @@ def clear():
     print('\033c')
     print('\x1bc')
     
-
-def showMenu():
-    clear()
-    print(".....................................................................................")
-    print("..............................|       USER MENU       |..............................")
-    print(".....................................................................................")
-    print(".....................................................................................")
-    print("_________________________________Avaiable_Operations_________________________________")
-    print("|                                                                                    |")
-    print("|                                                                    [Log out: 0]    |")
-    print("|    OPERATION 1 : Get the user's list                                               |")
-    print("|    OPERATION 2 : Read all messages                                                 |")
-    print("|    OPERATION 3 : Read new messages                                                 |")
-    print("|    OPERATION 4 : Send a message                                                    |")
-    print("|____________________________________________________________________________________|")
-
-
-    menuOptions = {
-            0 : logOut,
-            1 : getUsersList,
-            2 : readAllMessages,
-            3 : readNewMessages,
-            4 : sendMessage
-    }
-    operation = int(input("Choose an operation: "))
-    print(operation)
-    try:
-        return menuOptions[operation]()
-    except Exception as e:
-        print(str(e))
-        print("Il valore inserito non è accettabile. Riprova")
-        return -1
-
-
-def graphicClient():
-    check = -1
-    while check != 2: #2 is the value returned from a valid login
-
-        if check == 0: #user selected exit procedure 
-            sys.exit()
-             
-        check = showMainMenu()
-
-    #restoring default value of check, and start the logged user menu loop
-    check = -1
-    while check != 0: #user selected exit procedure
-        check = showMenu()
-
-
 def commandLineClient():
     #TODO
     print()
@@ -391,10 +304,10 @@ body will be asked interactively):')
 if __name__ == '__main__':
     application_name = sys.argv[0]
 
-    graph.HomeApp().run()
     if len(sys.argv) == 2: # there are params
         if (sys.argv[1] == '-g'):
-            graphicClient()  
+            graph.main()
+            #graphicClient()  
         if (sys.argv[1] == '-h'):
             showHelp()
         else: 

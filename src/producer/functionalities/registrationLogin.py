@@ -7,15 +7,17 @@ import json
 # operation. The user param is None in graphic client, otherwise it's given at
 # function invocation
 
-def registrationLogin(operationCode, user=None):
+def registrationLogin(operationCode, user=None, pw=None):
     input_params = {}
 
     if (user == None):
         user = input("Give me the username: ")
-    pw = getpass("Give me the password: ")
+    if (pw == None):
+        pw = getpass("Give me the password: ")
     
     if operationCode == 1:
         operation = 'Registration'
+        print('ok')
     elif operationCode == 2:
         operation = 'Login'
 
