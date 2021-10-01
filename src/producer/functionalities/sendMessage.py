@@ -1,31 +1,6 @@
 import boto3 
 #from Message import Message
 
-def getReceiversList():
-    rec_list = []
-
-    other_user = True
-    while other_user:
-        receiver = input("give me a receiver: ")
-        rec_list.append(receiver)
-        
-        # ask for another user
-        valid_answer = False
-        while not valid_answer:
-            tmp = input("do you want to add another receiver? (yes, no)")
-            if (tmp == 'yes'):
-                valid_answer = True 
-                print()
-        
-            elif (tmp == 'no'):
-                valid_answer = True 
-                other_user = False
-
-            else:
-                print('answr not valid. Retry:')
-
-    return rec_list 
-
 
 def getMsgBody():
     lines = ''
@@ -41,37 +16,51 @@ def getMsgBody():
 
 
         
-def sendMessage(sender, receivers = None, graphicsInput = None):
-    # usr list not None when called by Cli client
-    if graphicsInput == None:
-        if receivers == None:
-            receivers = getReceiversList() 
-        object_ = input("Give me the object: ")
+def sendMessage(params):
+    text = params['body']
+    if text == None: # cli-case
         print('Give me message text (to stop input, insert a blank line):')
         text = getMsgBody() 
-    else:
-        object_ = graphicsInput['object']
-        text = graphicsInput['body']
-
-
+    object_ = params['object']
+    receivers = params['receivers']
+    sender = params['sender']
+        
     sqs = boto3.resource('sqs')
     queue = sqs.get_queue_by_name(QueueName='send_messages_sqs_queue')
 
+    str_list = ''
+    for rec in receivers:
+        str_list += rec + ', '
+    # str_list is "a, b, c, ". removing last space and comma:
+    str_list = str_list[:-2]
+
     for rec in receivers:
         queue.send_message(MessageBody = text, MessageAttributes = {
+            # attributes for Message() fields
             'From' : {
                 'StringValue' : sender,
                 'DataType' : 'String'
                 },
             'To' : {
-                'StringValue' : rec,
+                'StringValue' : str_list,
                 'DataType' : 'String'
                 },
             'Object' : {
                 'StringValue' : object_,
                 'DataType' : 'String'
+                },
+            # folder name:
+            'Folder' : {
+                'StringValue' : rec,
+                'DataType' : 'String'
                 }
             })
 
-    if (graphicsInput == None):
-        print("Message(s) sent")
+if __name__ == '__main__':
+    p = {}
+    p['receivers'] = ['luca', 'asd']
+    p['object'] = 'prova' 
+    p['body'] = 'test' 
+    p['sender'] = 'luca'
+
+    sendMessage(p)

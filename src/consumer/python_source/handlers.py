@@ -106,16 +106,18 @@ def send_message(event, context):
 
         body = record['body']
         sender = record['messageAttributes']['From']['stringValue']
-        receiver = record['messageAttributes']['To']['stringValue']
+        receivers = record['messageAttributes']['To']['stringValue']
         obj = record['messageAttributes']['Object']['stringValue']
-
-        rec_msg = msg.Message(receiver, sender, obj, body)
+        folder_name = record['messageAttributes']['Folder']['stringValue']
+        rec_msg = msg.Message(receivers, sender, obj, body)
         
-        key = "{}/{}".format(receiver, context.aws_request_id)
+        key = "{}/{}".format(folder_name, context.aws_request_id)
+        print('key = ', key)
         s3 = boto3.resource('s3')
-        bucket = s3.Object('message-bucket-sdcc-20-21', key)
+        bucket = s3.Object('message-bucket-sdcc-20-21', key) 
         data = str(rec_msg)
-        bucket.put(Body=data.encode('utf-8'))
+        # metadata added to identify new msgs
+        bucket.put(Body=data.encode('utf-8'), Metadata={'new': 'True'})
 
     return True
 

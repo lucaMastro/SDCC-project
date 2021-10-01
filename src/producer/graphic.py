@@ -506,7 +506,7 @@ class ReadMessages(object):
         self.backButton.setIconSize(QtCore.QSize(50, 50))
         self.backButton.setObjectName("backButton")
         self.formLayoutWidget = QtWidgets.QWidget(ReadMessages)
-        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 104, 691, 271))
+        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 104, 671, 271))
         self.formLayoutWidget.setObjectName("formLayoutWidget")
         self.formLayout_2 = QtWidgets.QFormLayout(self.formLayoutWidget)
         self.formLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -525,8 +525,6 @@ class ReadMessages(object):
         self.label_4.setObjectName("label_4")
         self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_4)
         self.fromField = QtWidgets.QLineEdit(self.formLayoutWidget)
-        self.fromField.setToolTip("You can insert here multiple destiantion: dest1, dest2 ...")
-        self.fromField.setToolTipDuration(-1)
         self.fromField.setWhatsThis("")
         self.fromField.setEchoMode(QtWidgets.QLineEdit.Normal)
         self.fromField.setReadOnly(True)
@@ -542,9 +540,37 @@ class ReadMessages(object):
         self.bodyField.setObjectName("bodyField")
         self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.bodyField)
         self.spinBox = QtWidgets.QSpinBox(ReadMessages)
-        self.spinBox.setGeometry(QtCore.QRect(340, 390, 52, 30))
+        self.spinBox.setGeometry(QtCore.QRect(250, 390, 52, 30))
         self.spinBox.setSizeIncrement(QtCore.QSize(0, 0))
         self.spinBox.setObjectName("spinBox")
+
+
+
+        self.deleteButton = QtWidgets.QPushButton(ReadMessages)
+        self.deleteButton.setGeometry(QtCore.QRect(430, 390, 50, 30))
+        #self.deleteButton.setToolTip("Delete this message")
+        #self.deleteButton.setToolTipDuration(-1)
+        self.deleteButton.setStyleSheet("QPushButton\n"
+ "{\n"
+ "    background-color: #10151f;\n"
+ "    color: white;\n"
+ "    border-radius: 10px;\n"
+ "    border-style: outset;\n"
+ "    border-color: black;\n"
+ "    border-width: 1px;\n"
+ "}\n"
+ "\n"
+ "QPushButton:hover{\n"
+ "    background-color: #242f45;\n"
+ "    border-color: white;\n"
+ "    border-width: 2px;\n"
+ "}")
+        self.deleteButton.setText("")
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap("functionalities/images/delete.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.deleteButton.setIcon(icon1)
+        self.deleteButton.setIconSize(QtCore.QSize(20, 20))
+        self.deleteButton.setObjectName("deleteButton")
 
         self.retranslateUi(ReadMessages)
         QtCore.QMetaObject.connectSlotsByName(ReadMessages)
@@ -565,9 +591,6 @@ class ReadMessages(object):
         self.label_7.setText(_translate("ReadMessages", "Message body:"))
         self.label_2.setText(_translate("ReadMessages", "From:"))
         self.label_4.setText(_translate("ReadMessages", "Object:"))
-
-
-
 
 #----------------------------------------------------------------------------------------------
 
@@ -632,7 +655,7 @@ class ReadNewMessages(object):
         self.backButton.setIconSize(QtCore.QSize(50, 50))
         self.backButton.setObjectName("backButton")
         self.formLayoutWidget = QtWidgets.QWidget(ReadNewMessages)
-        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 104, 691, 271))
+        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 104, 671, 271))
         self.formLayoutWidget.setObjectName("formLayoutWidget")
         self.formLayout_2 = QtWidgets.QFormLayout(self.formLayoutWidget)
         self.formLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -651,8 +674,6 @@ class ReadNewMessages(object):
         self.label_4.setObjectName("label_4")
         self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_4)
         self.fromField = QtWidgets.QLineEdit(self.formLayoutWidget)
-        self.fromField.setToolTip("You can insert here multiple destiantion: dest1, dest2 ...")
-        self.fromField.setToolTipDuration(-1)
         self.fromField.setWhatsThis("")
         self.fromField.setEchoMode(QtWidgets.QLineEdit.Normal)
         self.fromField.setReadOnly(True)
@@ -668,19 +689,47 @@ class ReadNewMessages(object):
         self.bodyField.setObjectName("bodyField")
         self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.bodyField)
         self.spinBox = QtWidgets.QSpinBox(ReadNewMessages)
-        self.spinBox.setGeometry(QtCore.QRect(340, 390, 52, 30))
+        self.spinBox.setGeometry(QtCore.QRect(250, 390, 52, 30))
         self.spinBox.setSizeIncrement(QtCore.QSize(0, 0))
         self.spinBox.setObjectName("spinBox")
 
+
+
+        self.deleteButton = QtWidgets.QPushButton(ReadNewMessages)
+        self.deleteButton.setGeometry(QtCore.QRect(430, 390, 50, 30))
+        #self.deleteButton.setToolTip("Delete this message")
+        #self.deleteButton.setToolTipDuration(-1)
+        self.deleteButton.setStyleSheet("QPushButton\n"
+ "{\n"
+ "    background-color: #10151f;\n"
+ "    color: white;\n"
+ "    border-radius: 10px;\n"
+ "    border-style: outset;\n"
+ "    border-color: black;\n"
+ "    border-width: 1px;\n"
+ "}\n"
+ "\n"
+ "QPushButton:hover{\n"
+ "    background-color: #242f45;\n"
+ "    border-color: white;\n"
+ "    border-width: 2px;\n"
+ "}")
+        self.deleteButton.setText("")
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap("functionalities/images/delete.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.deleteButton.setIcon(icon1)
+        self.deleteButton.setIconSize(QtCore.QSize(20, 20))
+        self.deleteButton.setObjectName("deleteButton")
+
         self.retranslateUi(ReadNewMessages)
         QtCore.QMetaObject.connectSlotsByName(ReadNewMessages)
-
 
         #missing spin box change and next button clicked
         self.backButton.clicked.connect(self.backClicked)
 
     def backClicked(self):
         widgetStack.setCurrentIndex(sceneDict[backScene])
+
 
 
     def retranslateUi(self, ReadNewMessages):
@@ -691,6 +740,7 @@ class ReadNewMessages(object):
         self.label_7.setText(_translate("ReadNewMessages", "Message body:"))
         self.label_2.setText(_translate("ReadNewMessages", "From:"))
         self.label_4.setText(_translate("ReadNewMessages", "Object:"))
+
 
 #----------------------------------------------------------------------------------------------
 class SendMessage(object):
@@ -807,10 +857,12 @@ class SendMessage(object):
         obj = self.objectField.text()
         body = self.bodyField.toPlainText()
         graphicsInput = {}
+        graphicsInput['receivers'] = dest_list 
+        graphicsInput['sender'] =username
         graphicsInput['object'] = obj
         graphicsInput['body'] = body
 
-        send.sendMessage(username, dest_list, graphicsInput)
+        send.sendMessage(graphicsInput)
 
         showPopup(('Success!', 'Message sent successfully', None, None))
         self.objectField.setText('')

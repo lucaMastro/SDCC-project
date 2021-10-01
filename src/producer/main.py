@@ -72,12 +72,9 @@ def readNewMessages():
     input('read new done, press a key to continue')
     return 3
 
-def sendMessage(usr_list = None):
-    # param usr_list is not None only when is invoked by CLI-client
-    global username 
-    #print(send.sendMessage(username, usr_list))
-    send.sendMessage(username, usr_list)
-    input('send done, press a key to continue')
+def sendMessage(params):
+    send.sendMessage(params)
+    input('Message(s) sent.')
     return 4
 
 def clear():
@@ -235,19 +232,37 @@ def commandLineParser(user_input, loginDone):
                 return 4
             
             usr_list = []
+            oOptionFound = False 
             for i in range(2, len(params)):
                 curr = params[i]
+                if curr.endswith(','):
+                    curr = curr[:-1]
                 if (curr == '-o'):
+                    oOptionFound = True
                     break
                 usr_list.append(curr)
 
             # checking if cycle ends because of break or just because the
             # params are finished. In this case, the -o option is missing
-            if i == len(params):
+
+            if not oOptionFound:
                 print('Error: missing -o option for object.')
                 return 4
+            # checking if params is correctly len size:
+            # if everything was correct, now we have i that is the -o index,
+            # then i have to check if the i+1-th element of param exists:
+            #
+            if i + 1 == len(params):
+                print('Error: missing object.')
+                return 4
             
-            menuOptions[4](usr_list)
+            lambdaParams = {}
+            lambdaParams['receivers'] = usr_list
+            lambdaParams['object'] = params[i + 1]
+            lambdaParams['body'] = None
+            global username
+            lambdaParams['sender'] = username
+            menuOptions[4](lambdaParams)
             return 2
         else: 
             print('Error: command not found.')
