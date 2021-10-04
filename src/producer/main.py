@@ -29,10 +29,10 @@ def signInSelected(operationCode, user=None):
     lambda_response = response_list[0]
 
     if lambda_response == 'true': 
-        input('Signin done, press a key to continue')
+        print('Signin done, press a key to continue')
         return 1
     else:
-        input('Username still present retry')
+        print('Username still present retry')
         return None
 
 def loginSelected(operationCode, user=None):
@@ -40,41 +40,43 @@ def loginSelected(operationCode, user=None):
     
     response_list = regLog.registrationLogin(operationCode, user)
     lambda_response = response_list[0]
-    username = response_list[1]
 
     if lambda_response == 'true': 
-        input('Login has been done successfully. Press a key to continue')
+        print('Login has been done successfully. Press a key to continue')
+        username = response_list[1]
         return 2
     else:
-        input('Wrong username or password')
+        print('Wrong username or password')
         return None
 
 
 def logOut():
     #@TODO
-    input('log out done, press a key to continue')
+    print('log out done, press a key to continue')
     return 0
 
 def getUsersList():
     #@TODO
     a = usr.getUsrList()
     print(a)
-    input('list done, press a key to continue')
+    print('list done, press a key to continue')
     return 1
 
 def readAllMessages():
-    #@TODO
-    input('read all done, press a key to continue')
+    global username
+    print(read.getMessages(username) )
+    print('read all done, press a key to continue')
     return 2
 
 def readNewMessages():
-    #@TODO
-    input('read new done, press a key to continue')
+    global username
+    print(read.getMessages(username, False) )
+    print('read new done, press a key to continue')
     return 3
 
 def sendMessage(params):
     send.sendMessage(params)
-    input('Message(s) sent.')
+    print('Message(s) sent.')
     return 4
 
 def clear():
@@ -113,17 +115,19 @@ def commandLineClient():
 def commandLineParser(user_input, loginDone):
     #TODO
     params = user_input.split(' ')
+    while '' in params:
+        params.remove('')
 
+    if len(params) == 0:
+        # just show a new line
+        return 
     # first element is the cmd to execute
     main_command = params[0]
 
     # checking if it's a clear, help or exit command. Same behaviour in any
     # case for these commands:
 
-    if main_command == '':
-        # just show a new line
-        return
-    elif main_command == 'exit':
+    if main_command == 'exit':
         # checking for no params:
         if len(params) != 1:
             print('Error: too mach params.')
@@ -180,8 +184,7 @@ def commandLineParser(user_input, loginDone):
                 print('Error: invalid option.')
                 return 1
 
-            menuOptions[2](2, params[2])
-            return 2
+            return menuOptions[2](2, params[2])
 
         
         else: 
@@ -207,7 +210,7 @@ def commandLineParser(user_input, loginDone):
             # read      or      read -n
 
             if len(params) == 1: # only the read command
-                menuOptions[2]()
+                return menuOptions[2]()
             elif len(params) > 2: # the name and 2 or more params
                 print('Error: too mach argument.')
                 return 2
@@ -216,10 +219,7 @@ def commandLineParser(user_input, loginDone):
                 print('Error: invalid option.')
                 return 2
             else:
-                return menuOptions[3](1)
-            
-            menuOptions[1](1)
-            return 1
+                return menuOptions[3]()
 
         elif main_command == 'send':
             # send -u <user1> <user2> .. <user_n> -o <object>

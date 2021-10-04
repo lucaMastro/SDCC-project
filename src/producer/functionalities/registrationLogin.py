@@ -17,7 +17,6 @@ def registrationLogin(operationCode, user=None, pw=None):
     
     if operationCode == 1:
         operation = 'Registration'
-        print('ok')
     elif operationCode == 2:
         operation = 'Login'
 
