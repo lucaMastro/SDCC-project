@@ -2,12 +2,16 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
 QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
 import sys
+from PyQt5.QtCore import pyqtSignal, QObject
 
 import functionalities.getUsrList as usr 
 import functionalities.readMessages as read 
 import functionalities.registrationLogin as regLog 
 import functionalities.sendMessage as send 
+import functionalities.Message as mess
 
+
+readPayload = None
 
 class Home(object):
     def setupUi(self, Home):
@@ -124,8 +128,13 @@ class Home(object):
 #----------------------------------------------------------------------------------------------
 
 
-class LoggedUserHome(object):
-    def setupUi(self, LoggedUserHome):
+class LoggedUserHome(QObject):
+
+    readSignal = pyqtSignal(int)
+    readNewSignal = pyqtSignal(int)
+
+    def setupUi(self, LoggedUserHome, readMessagesObject=None,
+            readNewMessagesObject=None):
 
         global username
 
@@ -278,14 +287,21 @@ class LoggedUserHome(object):
         self.userListButton.clicked.connect(self.usrListButtonClicked)
         self.close_button.clicked.connect(self.closeButtonClicked)
 
+        # connecting signal
+        self.readSignal.connect(readMessagesObject.startUseCase)
+        self.readNewSignal.connect(readNewMessagesObject.startUseCase)
+
 
     def sendButtonClicked(self):
         widgetStack.setCurrentIndex(sceneDict['sendMessage'])
 
     def readButtonClicked(self):
+        self.readSignal.emit(0)
+        # preparing first message view:
         widgetStack.setCurrentIndex(sceneDict['readMessages'])
 
     def readNewButtonClicked(self):
+        self.readNewSignal.emit(0)
         widgetStack.setCurrentIndex(sceneDict['readNewMessages'])
 
     def usrListButtonClicked(self):
@@ -426,6 +442,10 @@ class LogIn(object):
         if lambda_response == 'true': 
             backScene = 'loggedHome'
             username = usr
+            w = widgetStack.widget(sceneDict['loggedHome'])
+            welcome_label = w.findChild(QLabel, 'welcomeLabel')
+            welcome_label.setText('Welcome {}'.format(username))
+
             widgetStack.setCurrentIndex(sceneDict['loggedHome'])
         else:
             showPopup(('Error!', 'Something went wrong:', 'Wrong username or \
@@ -447,6 +467,7 @@ class LogIn(object):
 #----------------------------------------------------------------------------------------------
 
 class ReadMessages(object):
+    messageObjectList = []
     def setupUi(self, ReadMessages):
         ReadMessages.setObjectName("ReadMessages")
         ReadMessages.setEnabled(True)
@@ -577,11 +598,63 @@ class ReadMessages(object):
 
         #missing spin box change and next button clicked
         self.backButton.clicked.connect(self.backClicked)
+        self.nextButton.clicked.connect(self.nextClicked)
+        self.deleteButton.clicked.connect(self.deleteClicked)
+ 
+        
+    def startUseCase(self):
+        # setting empty labels:
+        self.fromField.setText('')
+        self.objectField.setText('')
+        self.bodyField.setPlainText('')
+        global username
+        read.getMessages(username,graphic=True)
+        # creating a list of Message objects, based on the read.messagesList
+        self.messageObjectList = []
+        for msgString in read.messagesList:
+            self.messageObjectList.append(mess.Message(msgString))
+        if len(self.messageObjectList) == 0:
+            showPopup(('No message found', "You don't have any new message",\
+                    None, 0))
+            return
+        
+        self.spinBox.setMinimum(1)
+        self.spinBox.setMaximum(len(self.messageObjectList))
+        # init to -1 to use nextClicked function to initialize first view
+        self.toDisplayIndex = -1
+        self.nextClicked()
+
+
+    def nextClicked(self):
+        self.toDisplayIndex += 1
+        if len(self.messageObjectList) != 0:
+            self.toDisplayIndex %= len(self.messageObjectList)
+
+        toDisplayMessage = self.messageObjectList[self.toDisplayIndex]
+        self.fromField.setText(toDisplayMessage.from_)
+        self.objectField.setText(toDisplayMessage.object_)
+        self.bodyField.setPlainText(toDisplayMessage.text)
+
+        # updating spinBox number:
+        self.spinBox.setValue(self.toDisplayIndex + 1)
+
+        # updating read.readMessages
+        if self.toDisplayIndex not in read.readMessages:
+            read.readMessages.append(self.toDisplayIndex)
+
+    def deleteClicked(self):
+        # updating read.toDeleteMessages
+        read.toDeleteMessages.append(self.toDisplayIndex)
+        # showing the enxt one
+        self.nextClicked()
+        return
 
     def backClicked(self):
+        self.deleteAndMark()
         widgetStack.setCurrentIndex(sceneDict[backScene])
 
-
+    def deleteAndMark(self):
+        read.prepareAndInvokeDelete()
 
     def retranslateUi(self, ReadMessages):
         _translate = QtCore.QCoreApplication.translate
@@ -596,6 +669,8 @@ class ReadMessages(object):
 
 
 class ReadNewMessages(object):
+    messageObjectList = []
+
     def setupUi(self, ReadNewMessages):
         ReadNewMessages.setObjectName("ReadNewMessages")
         ReadNewMessages.setEnabled(True)
@@ -726,9 +801,64 @@ class ReadNewMessages(object):
 
         #missing spin box change and next button clicked
         self.backButton.clicked.connect(self.backClicked)
+        self.nextButton.clicked.connect(self.nextClicked)
+        self.deleteButton.clicked.connect(self.deleteClicked)
+ 
+        
+    def startUseCase(self):
+        # setting empty labels:
+        self.fromField.setText('')
+        self.objectField.setText('')
+        self.bodyField.setPlainText('')
+        
+        global username
+        read.getMessages(username,all_=False,graphic=True)
+        # creating a list of Message objects, based on the read.messagesList
+        self.messageObjectList = []
+        for msgString in read.messagesList:
+            self.messageObjectList.append(mess.Message(msgString))
+        
+        if len(self.messageObjectList) == 0:
+            showPopup(('No message found', "You don't have any new message",\
+                    None, 0))
+            return
+        self.spinBox.setMinimum(1)
+        self.spinBox.setMaximum(len(self.messageObjectList))
+        # init to -1 to use nextClicked function to initialize first view
+        self.toDisplayIndex = -1
+        self.nextClicked()
+
+
+    def nextClicked(self):
+        self.toDisplayIndex += 1
+        if len(self.messageObjectList) != 0:
+            self.toDisplayIndex %= len(self.messageObjectList)
+
+        toDisplayMessage = self.messageObjectList[self.toDisplayIndex]
+        self.fromField.setText(toDisplayMessage.from_)
+        self.objectField.setText(toDisplayMessage.object_)
+        self.bodyField.setPlainText(toDisplayMessage.text)
+
+        # updating spinBox number:
+        self.spinBox.setValue(self.toDisplayIndex + 1)
+
+        # updating read.readMessages
+        if self.toDisplayIndex not in read.readMessages:
+            read.readMessages.append(self.toDisplayIndex)
+
+    def deleteClicked(self):
+        # updating read.toDeleteMessages
+        read.toDeleteMessages.append(self.toDisplayIndex)
+        # showing the enxt one
+        self.nextClicked()
+        return
 
     def backClicked(self):
+        self.deleteAndMark()
         widgetStack.setCurrentIndex(sceneDict[backScene])
+
+    def deleteAndMark(self):
+        read.prepareAndInvokeDelete()
 
 
 
@@ -1072,38 +1202,40 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     widgetStack = QtWidgets.QStackedWidget()
 
-    home = QtWidgets.QDialog()
+    # class instances:
     home_ui = Home()
+    signin_ui = SignIn()
+    login_ui = LogIn()
+    loggedHome_ui = LoggedUserHome()
+    sendMessage_ui = SendMessage()
+    readMessages_ui = ReadMessages()
+    readNewMessages_ui = ReadNewMessages()
+
+    home = QtWidgets.QDialog()
     home_ui.setupUi(home)
     widgetStack.addWidget(home)
     
     signin = QtWidgets.QDialog()
-    signin_ui = SignIn()
     signin_ui.setupUi(signin)
     widgetStack.addWidget(signin)
 
     login = QtWidgets.QDialog()
-    login_ui = LogIn()
     login_ui.setupUi(login)
     widgetStack.addWidget(login)
 
     loggedHome = QtWidgets.QDialog()
-    loggedHome_ui = LoggedUserHome()
-    loggedHome_ui.setupUi(loggedHome)
+    loggedHome_ui.setupUi(loggedHome, readMessages_ui, readNewMessages_ui)
     widgetStack.addWidget(loggedHome)
 
     sendMessage = QtWidgets.QDialog()
-    sendMessage_ui = SendMessage()
     sendMessage_ui.setupUi(sendMessage)
     widgetStack.addWidget(sendMessage)
     
     readMessages = QtWidgets.QDialog()
-    readMessages_ui = ReadMessages()
     readMessages_ui.setupUi(readMessages)
     widgetStack.addWidget(readMessages)
     
     readNewMessages = QtWidgets.QDialog()
-    readNewMessages_ui = ReadNewMessages()
     readNewMessages_ui.setupUi(readNewMessages)
     widgetStack.addWidget(readNewMessages)
 
@@ -1112,6 +1244,9 @@ def main():
     widgetStack.setWindowTitle('Graphic client')
     widgetStack.show()
 
+    #global username
+    #username = 'luca'
+    #widgetStack.setCurrentIndex(sceneDict['loggedHome'])
 
     sys.exit(app.exec_())
 

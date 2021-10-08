@@ -29,10 +29,10 @@ def signInSelected(operationCode, user=None):
     lambda_response = response_list[0]
 
     if lambda_response == 'true': 
-        print('Signin done, press a key to continue')
+        print('Success.')
         return 1
     else:
-        print('Username still present retry')
+        print('Error: username still present retry')
         return None
 
 def loginSelected(operationCode, user=None):
@@ -42,36 +42,27 @@ def loginSelected(operationCode, user=None):
     lambda_response = response_list[0]
 
     if lambda_response == 'true': 
-        print('Login has been done successfully. Press a key to continue')
+        print('Success.')
         username = response_list[1]
         return 2
     else:
-        print('Wrong username or password')
+        print('Error: wrong username or password')
         return None
 
 
-def logOut():
-    #@TODO
-    print('log out done, press a key to continue')
-    return 0
-
 def getUsersList():
-    #@TODO
-    a = usr.getUsrList()
-    print(a)
-    print('list done, press a key to continue')
+    l = usr.getUsrList()
+    print(l)
     return 1
 
 def readAllMessages():
     global username
-    print(read.getMessages(username) )
-    print('read all done, press a key to continue')
+    read.getMessages(username) 
     return 2
 
 def readNewMessages():
     global username
-    print(read.getMessages(username, False) )
-    print('read new done, press a key to continue')
+    read.getMessages(username, False) 
     return 3
 
 def sendMessage(params):
@@ -85,7 +76,6 @@ def clear():
     print('\x1bc')
     
 def commandLineClient():
-    #TODO
     print()
     
     check = -1
@@ -106,14 +96,11 @@ def commandLineClient():
         check = commandLineParser(usr_input, loginDone)
         if not loginDone and check == 2:
             loginDone = True
-        
-        
     return 
 
 
 
 def commandLineParser(user_input, loginDone):
-    #TODO
     params = user_input.split(' ')
     while '' in params:
         params.remove('')
@@ -155,13 +142,7 @@ def commandLineParser(user_input, loginDone):
     if not loginDone:
         # only clear, exit, reg, log will be accepted:
 
-        menuOptions = {
-                1 : signInSelected,
-                2 : loginSelected
-        }
-
         # parsing main cmd: 
-
         if main_command == 'reg':
             # reg -u <user>
             if len(params) != 3:
@@ -172,7 +153,7 @@ def commandLineParser(user_input, loginDone):
                 print('Error: invalid option.')
                 return 1
 
-            menuOptions[1](1, params[2])
+            signInSelected(1, params[2])
             return 1
         elif main_command == 'log':
             # log -u <user>
@@ -184,47 +165,40 @@ def commandLineParser(user_input, loginDone):
                 print('Error: invalid option.')
                 return 1
 
-            return menuOptions[2](2, params[2])
-
-        
+            return loginSelected(2, params[2])
         else: 
             print('Error: command not found.')
-    
+    # login Done. usr list, send and read (all and new) accepted
     else:
-        menuOptions = {
-                1 : getUsersList,
-                2 : readAllMessages,
-                3 : readNewMessages,
-                4 : sendMessage,
-        }
-
         if main_command == 'usr_list':
             # usr_list
             if len(params) != 1:
                 print('Error: too mach params.')
                 return 1
 
-            return menuOptions[1]() 
+            return getUsersList() 
 
         elif main_command == 'read':
             # read      or      read -n
 
             if len(params) == 1: # only the read command
-                return menuOptions[2]()
+                readAllMessages()
+                return 
             elif len(params) > 2: # the name and 2 or more params
-                print('Error: too mach argument.')
+                print('Error: too much argument.')
                 return 2
             # we have a param. check if it's the -n
             if params[1] != '-n':
                 print('Error: invalid option.')
                 return 2
             else:
-                return menuOptions[3]()
+                readNewMessages()
+                return
 
         elif main_command == 'send':
             # send -u <user1> <user2> .. <user_n> -o <object>
             if len(params) < 3:
-                print('Error: you have to specify user.')
+                print('Error: no user given.')
                 return 4
 
             if params[1] != '-t':
@@ -250,29 +224,31 @@ def commandLineParser(user_input, loginDone):
                 return 4
             # checking if params is correctly len size:
             # if everything was correct, now we have i that is the -o index,
-            # then i have to check if the i+1-th element of param exists:
+            # then just check if the i+1-th element of param exists:
             #
             if i + 1 == len(params):
                 print('Error: missing object.')
                 return 4
-            
+            obj_ = params[i + 1]
+            for j in range(i + 2, len(params)):
+                obj_ += ' ' + params[j]
+
             lambdaParams = {}
             lambdaParams['receivers'] = usr_list
-            lambdaParams['object'] = params[i + 1]
+            #lambdaParams['object'] = params[i + 1]
+            lambdaParams['object'] = obj_
             lambdaParams['body'] = None
             global username
             lambdaParams['sender'] = username
-            menuOptions[4](lambdaParams)
+            sendMessage(lambdaParams)
             return 2
         else: 
             print('Error: command not found.')
-
 
     return 
 
 
 def showHelp():
-    #TODO
     print('Command Line application works with the following:\n')
 
     print("From command shell:")
@@ -312,10 +288,6 @@ body will be asked interactively):')
     return 
 
 
-
-
-
-
 if __name__ == '__main__':
     application_name = sys.argv[0]
 
@@ -332,11 +304,3 @@ if __name__ == '__main__':
     else:
         commandLineClient()
 
-
-
-
-
-    
-
-
-        

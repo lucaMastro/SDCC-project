@@ -6,9 +6,20 @@ import functionalities.deleteMessagesAndMarkAsRead as delAndMark
 
 readMessages = []
 toDeleteMessages = []
+messagesList = []
+payload = None
 
 def getMessages(username, all_ = True, graphic=False):
     
+    global readMessages
+    global toDeleteMessages
+    global messagesList 
+    global payload
+
+    messagesList = []
+    readMessages = []
+    toDeleteMessages = []
+
     client = boto3.client('lambda')
     input_params = {}
     input_params['All'] = all_ 
@@ -21,7 +32,21 @@ def getMessages(username, all_ = True, graphic=False):
     strPayload = response['Payload'].read().decode('utf-8')
 
     payload = ast.literal_eval(strPayload)
-    showMessages(username, all_, payload)
+
+    # filling messagesList with the bodies
+    for key in payload.keys():
+        messagesList.append(payload[key]['message'])
+
+    if not graphic:
+        showMessages(username, all_)
+        prepareAndInvokeDelete()
+        
+
+
+def prepareAndInvokeDelete():
+    global readMessages
+    global toDeleteMessages 
+    global payload 
 
     # now readMessages and toDeleteMessages lists are filled. use them to
     # create dict that will be used as input of lambda for deleting and marking
@@ -41,7 +66,7 @@ def getMessages(username, all_ = True, graphic=False):
     # following dict will keep pairs like <key-name-in-s3>:<operation>
     # where operation is 'del' or 'mark'
     # if both lists are empty, no operation is needed:
-    if readMessages != [] and toDeleteMessages != []:
+    if readMessages != [] or toDeleteMessages != []:
         inputDict = {}
         for i in readMessages:
             inputDict[payload[str(i)]['key']] = 'mark'
@@ -51,11 +76,16 @@ def getMessages(username, all_ = True, graphic=False):
         
         delAndMark.manageDelAndMark(inputDict)
 
+    # reinitializing payload
+    payload = None
 
-def showMessages(username, all_, payload):
-    messagesList = []
-    for key in payload.keys():
-        messagesList.append(payload[key]['message'])
+
+# CLI read-messages support
+def showMessages(username, all_):
+    global messagesList
+    global readMessages
+    global toDeleteMessages 
+    global payload 
 
     if (len(messagesList) == 0):
         print("You don't have any message to display.")
@@ -66,12 +96,7 @@ def showMessages(username, all_, payload):
     else:
         print("You have {} new messages to display.".format(len(messagesList)))
     
-
     current = 0
-    
-    global readMessages
-    global toDeleteMessages 
-
     while current < len(messagesList):
         print('-' * 60)
         print('index: {}\tNew: {}\n'.format(current + 1,
