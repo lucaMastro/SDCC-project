@@ -1189,8 +1189,18 @@ class UserList(QWidget):
 
 
 #----------------------------------------------------------------------------------------------
+# this class is needed to override close event method. I need to have the
+# equivalent of ctrl c in gui for read message, to show read messages to aws 
+class WidgetStack(QtWidgets.QStackedWidget):
+    def __init__(self,parent=None):
+        super().__init__(parent)
 
+    def closeEvent(self, event):
+        if self.currentIndex() == sceneDict['readMessages']:
+            read.signalHandler()
+        event.accept()
 
+#----------------------------------------------------------------------------------------------
 
 def main():
     global app
@@ -1200,7 +1210,7 @@ def main():
     backScene = 'home'
 
     app = QtWidgets.QApplication(sys.argv)
-    widgetStack = QtWidgets.QStackedWidget()
+    widgetStack = WidgetStack()
 
     # class instances:
     home_ui = Home()

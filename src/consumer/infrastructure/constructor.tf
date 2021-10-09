@@ -288,9 +288,9 @@ resource "aws_lambda_function" "sign_log_in" {
    function_name = "sign_log_in"
 
    s3_bucket = "source-bucket-sdcc-20-21"
-   s3_key    = "sources-1.0.zip"
+   s3_key    = "sources.zip"
 
-   handler = "handlers.sign_in_log_in"
+   handler = "lambda_reg_log.sign_in_log_in"
    runtime = "python3.8"
 
    role = aws_iam_role.registration_login_iam_role.arn
@@ -300,9 +300,9 @@ resource "aws_lambda_function" "users_list" {
    function_name = "users_list"
 
    s3_bucket = "source-bucket-sdcc-20-21"
-   s3_key    = "sources-1.0.zip"
+   s3_key    = "sources.zip"
 
-   handler = "handlers.users_list"
+   handler = "lambda_users_list.users_list"
    runtime = "python3.8"
 
    role = aws_iam_role.usr_list_iam_role.arn
@@ -313,9 +313,9 @@ resource "aws_lambda_function" "read_messages" {
    function_name = "read_messages"
 
    s3_bucket = "source-bucket-sdcc-20-21"
-   s3_key    = "sources-1.0.zip"
+   s3_key    = "sources.zip"
 
-   handler = "handlers.read_messages"
+   handler = "lambda_read.read_messages"
    runtime = "python3.8"
 
    role = aws_iam_role.read_message_iam_role.arn
@@ -325,9 +325,9 @@ resource "aws_lambda_function" "send_message" {
    function_name = "send_message"
 
    s3_bucket = "source-bucket-sdcc-20-21"
-   s3_key    = "sources-1.0.zip"
+   s3_key    = "sources.zip"
 
-   handler = "handlers.send_message"
+   handler = "lambda_send.send_message"
    runtime = "python3.8"
 
    role = aws_iam_role.send_message_iam_role.arn
@@ -338,9 +338,9 @@ resource "aws_lambda_function" "manage_del_and_mark" {
    function_name = "manage_del_and_mark"
 
    s3_bucket = "source-bucket-sdcc-20-21"
-   s3_key    = "sources-1.0.zip"
+   s3_key    = "sources.zip"
 
-   handler = "handlers.manage_del_and_mark"
+   handler = "delete_and_mark.manage_del_and_mark"
    runtime = "python3.8"
 
    role = aws_iam_role.manage_del_and_mark.arn

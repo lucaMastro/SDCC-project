@@ -36,15 +36,15 @@ terraform init
 echo 'yes' | terraform destroy
 
 # removing local version
-rm sources-1.0.zip 2>/dev/null
+rm sources.zip 2>/dev/null
 
 #saving db_host in a variable for python usage
 echo "DB_HOST = '$db_host'" > host.py 
 
 cd $src_path/package-mysql-connector 
-zip -r ../sources-1.0.zip .
+zip -r ../sources.zip .
 cd ..
-zip -g sources-1.0.zip *.py 
+zip -g sources.zip *.py 
 
 terraform init
 echo 'yes' | terraform apply
@@ -53,5 +53,7 @@ echo 'yes' | terraform apply
 # creating infrastucture:
 cd $infrastructure_path 
 terraform init
+# destroying previous lambdas
+echo 'yes' | terraform destroy
 echo 'yes' | terraform apply
 

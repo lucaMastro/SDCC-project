@@ -1,6 +1,8 @@
 import boto3
 import json
 import ast
+import signal
+import sys 
 
 import functionalities.deleteMessagesAndMarkAsRead as delAndMark
 
@@ -41,7 +43,10 @@ def getMessages(username, all_ = True, graphic=False):
         showMessages(username, all_)
         prepareAndInvokeDelete()
         
-
+def signalHandler(*args):
+    print('\nPlease wait few seconds..\n')
+    prepareAndInvokeDelete()
+    sys.exit()
 
 def prepareAndInvokeDelete():
     global readMessages
@@ -87,6 +92,13 @@ def showMessages(username, all_):
     global toDeleteMessages 
     global payload 
 
+    # command line changing handler for ctrl +c: in this way, even if a ctrl+c
+    # is execute, the changes will be sent to aws
+    # this is needed to restore default status
+    default_handler = signal.getsignal(signal.SIGINT)
+    # changing handler:
+    signal.signal(signal.SIGINT, signalHandler)
+    
     if (len(messagesList) == 0):
         print("You don't have any message to display.")
         return
@@ -146,6 +158,9 @@ def showMessages(username, all_):
 
     if current == len(messagesList):
         print("You don't have other messages.")
+    
+    # restoring previous handler:
+    signal.signal(signal.SIGINT, default_handler)
 
 
 if __name__ == '__main__':

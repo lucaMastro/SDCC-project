@@ -1,6 +1,7 @@
 #............................................................
 # Imports
 import sys
+import ast 
 import functionalities.getUsrList as usr 
 import functionalities.readMessages as read 
 import functionalities.registrationLogin as regLog 
@@ -32,7 +33,8 @@ def signInSelected(operationCode, user=None):
         print('Success.')
         return 1
     else:
-        print('Error: username still present retry')
+        dic = ast.literal_eval(lambda_response)
+        print('Error: {}'.format(dic['errorMessage']))
         return None
 
 def loginSelected(operationCode, user=None):
