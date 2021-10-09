@@ -1196,7 +1196,8 @@ class WidgetStack(QtWidgets.QStackedWidget):
         super().__init__(parent)
 
     def closeEvent(self, event):
-        if self.currentIndex() == sceneDict['readMessages']:
+        if self.currentIndex() == sceneDict['readMessages'] or \
+                self.currentIndex() == sceneDict['readNewMessages']:
             read.signalHandler()
         event.accept()
 
