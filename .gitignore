@@ -5,4 +5,3 @@ utility
 .terraform*
 *.pyc
 test-env
-*gui*
