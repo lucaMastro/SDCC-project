@@ -10,7 +10,6 @@ import functionalities.Message as mess
 import gui_support.support_functions as supp 
 
 class ReadMessages(object):
-    messageObjectList = []
     backScene = 'loggedHome'    
     
     def __init__(self, WidgetStack=None):
@@ -158,16 +157,11 @@ class ReadMessages(object):
         self.bodyField.setPlainText('')
         read.getMessages(self.username,graphic=True)
         # creating a list of Message objects, based on the read.messagesList
-        self.messageObjectList = []
-        for msgString in read.messagesList:
-            self.messageObjectList.append(mess.Message(msgString))
-        if len(self.messageObjectList) == 0:
-            supp.showPopup(('No message found', "You don't have any new message",\
+        if len(read.messagesList) == 0:
+            supp.showPopup(('No message found', "You don't have any message",\
                     None, 0))
             return
         
-        self.spinBox.setMinimum(1)
-        self.spinBox.setMaximum(len(self.messageObjectList))
         # init to -1 to use nextClicked function to initialize first view
         self.toDisplayIndex = -1
         self.nextClicked()
@@ -175,10 +169,23 @@ class ReadMessages(object):
 
     def nextClicked(self):
         self.toDisplayIndex += 1
-        if len(self.messageObjectList) != 0:
-            self.toDisplayIndex %= len(self.messageObjectList)
+        # this condition may become True after deleting objects
+        if len(read.messagesList) != 0:
+            self.toDisplayIndex %= len(read.messagesList)
+            self.spinBox.setMinimum(1)
+            self.spinBox.setMaximum(len(read.messagesList))
+        else:
+            self.fromField.setText('')
+            self.objectField.setText('')
+            self.bodyField.setPlainText('')
+            self.spinBox.setMinimum(1)
+            self.spinBox.setMaximum(len(read.messagesList))
+            supp.showPopup(('No other message found', "You don't have messages"
+            +" anymore", None, 0))
+            return
 
-        toDisplayMessage = self.messageObjectList[self.toDisplayIndex]
+
+        toDisplayMessage = read.messagesList[self.toDisplayIndex]
         self.fromField.setText(toDisplayMessage.from_)
         self.objectField.setText(toDisplayMessage.object_)
         self.bodyField.setPlainText(toDisplayMessage.text)
@@ -187,13 +194,15 @@ class ReadMessages(object):
         self.spinBox.setValue(self.toDisplayIndex + 1)
 
         # updating read.readMessages
-        if self.toDisplayIndex not in read.readMessages:
-            read.readMessages.append(self.toDisplayIndex)
+        read.messagesList.read = True
 
     def deleteClicked(self):
-        # updating read.toDeleteMessages
-        read.toDeleteMessages.append(self.toDisplayIndex)
-        # showing the enxt one
+        read.messagesList.delete(self.toDisplayIndex)
+
+        # showing the enxt one: i need do show the new self.toDisplayIndex.
+        # this value is incremented as first operation in show next, that's why
+        # i'm going to decrement by 1 that value here 
+        self.toDisplayIndex -= 1
         self.nextClicked()
         return
 
