@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
 QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
 import sys
 from PyQt5.QtCore import pyqtSignal, QObject
+import functionalities.readMessages as read
 
 
 
@@ -24,8 +25,8 @@ class WidgetStack(QtWidgets.QStackedWidget):
         super().__init__(parent)
 
     def closeEvent(self, event):
-        if self.currentIndex() == sceneDict['readMessages'] or \
-                self.currentIndex() == sceneDict['readNewMessages']:
+        if self.currentIndex() == self.sceneDict['readMessages'] or \
+                self.currentIndex() == self.sceneDict['readNewMessages']:
             read.signalHandler()
         event.accept()
 

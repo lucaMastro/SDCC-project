@@ -147,11 +147,19 @@ class ReadNewMessages(object):
         self.retranslateUi(ReadNewMessages)
         QtCore.QMetaObject.connectSlotsByName(ReadNewMessages)
 
-        #missing spin box change and next button clicked
         self.backButton.clicked.connect(self.backClicked)
         self.nextButton.clicked.connect(self.nextClicked)
         self.deleteButton.clicked.connect(self.deleteClicked)
- 
+        # conencting spinbox on change value:
+        self.spinBox.valueChanged.connect(self.jumpMessage)
+    
+    def jumpMessage(self, n):
+        # n is the new value on spinBox
+        #
+        # -2 because a +1 occurs in showNext, and the n-th mess
+        # is in (n-1)-th position
+        self.toDisplayIndex = n - 2
+        self.nextClicked()
         
     def startUseCase(self):
         # setting empty labels:
@@ -180,8 +188,8 @@ class ReadNewMessages(object):
             self.fromField.setText('')
             self.objectField.setText('')
             self.bodyField.setPlainText('')
-            self.spinBox.setMinimum(1)
-            self.spinBox.setMaximum(len(read.messagesList))
+            self.spinBox.setMinimum(0)
+            self.spinBox.setMaximum(0)
             supp.showPopup(('No other new message found', "You don't have new" +
                 " messages anymore", None, 0))
             return
@@ -195,7 +203,7 @@ class ReadNewMessages(object):
         self.spinBox.setValue(self.toDisplayIndex + 1)
 
         # updating read.readMessages
-        read.messagesList.read = True
+        read.messagesList[self.toDisplayIndex].read = True
 
     def deleteClicked(self):
         read.messagesList.delete(self.toDisplayIndex)
