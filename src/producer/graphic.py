@@ -69,7 +69,7 @@ def main():
 
     #global username
     #username = 'luca'
-    #widgetStack.setCurrentIndex(sceneDict['loggedHome'])
+    #widgetStack.setCurrentIndex(widgetStack.sceneDict['loggedHome'])
 
     sys.exit(app.exec_())
 

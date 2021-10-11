@@ -133,7 +133,8 @@ class SendMessage(object):
 
         send.sendMessage(graphicsInput)
 
-        supp.showPopup(('Success!', 'Message sent successfully', None, None))
+        supp.showPopup(self.widgetStack, 'Success!', 
+            'Message sent successfully', None, False)
         self.objectField.setText('')
         self.bodyField.setPlainText('')
         self.destinationField.setText('')

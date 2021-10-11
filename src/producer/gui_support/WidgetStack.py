@@ -4,6 +4,7 @@ QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
 import sys
 from PyQt5.QtCore import pyqtSignal, QObject
 import functionalities.readMessages as read
+import gui_support.support_functions as supp 
 
 
 
@@ -27,7 +28,8 @@ class WidgetStack(QtWidgets.QStackedWidget):
     def closeEvent(self, event):
         if self.currentIndex() == self.sceneDict['readMessages'] or \
                 self.currentIndex() == self.sceneDict['readNewMessages']:
-            read.signalHandler()
+            QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+            read.signalHandler(True, None, None)
         event.accept()
 
 if __name__ == '__main__':

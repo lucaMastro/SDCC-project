@@ -7,6 +7,7 @@ import sys
 sys.path.append('..')
 import functionalities.registrationLogin as regLog 
 import gui_support.support_functions as supp 
+import ast
 
 class LogIn(QObject):
     
@@ -145,8 +146,8 @@ class LogIn(QObject):
             #update the scene
             self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['loggedHome'])
         else:
-            dic = ast.literal_eval(lambda_response)
-            supp.showPopup(('Error!', 'Something went wrong:', dic['errorMessage'], -1))
+            supp.showPopup(self.widgetStack, 'Error!', 'Something went wrong:',
+                    lambda_response, True)
 
     def backClicked(self):
         self.widgetStack.setCurrentIndex(

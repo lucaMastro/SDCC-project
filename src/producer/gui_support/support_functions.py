@@ -1,17 +1,13 @@
-from PyQt5 import QtCore, QtGui, QtWidgets 
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
-QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
+QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp, QDialog
 from PyQt5.QtCore import pyqtSignal, QObject
 import sys
 
-def showPopup(params):
-    mbox = QMessageBox()
-    title = params[0]
-    baseMsg = params[1]
-    msg = params[2]
-    returnCode = params[3]
+def showPopup(parent, title, baseMsg, msg, critical, blocking=True):
+    mbox = QMessageBox(parent)
 
-    if returnCode == -1:
+    if critical:
         mbox.setIcon(QMessageBox.Critical)
     else:
         mbox.setIcon(QMessageBox.Information)
@@ -19,8 +15,6 @@ def showPopup(params):
     mbox.setWindowTitle(title)
     mbox.setText(baseMsg)
     mbox.setInformativeText(msg)
-
-
 
     qApp.setStyleSheet("QMessageBox QPushButton{\n"
 "    background-color: #10151f;\n"
@@ -38,7 +32,9 @@ def showPopup(params):
 "}")
 
     mbox.setStandardButtons(QMessageBox.Ok)
-    mbox.exec_()
+    if not blocking:
+        mbox.setWindowModality(QtCore.Qt.NonModal)
+    mbox.show()
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)

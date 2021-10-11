@@ -3,9 +3,11 @@ import json
 import ast
 import signal
 import sys 
+from functools import partial
 
 import functionalities.deleteMessagesAndMarkAsRead as delAndMark
 import functionalities.Message as mess 
+import gui_support.support_functions as supp 
 
 messagesList = []
 
@@ -118,7 +120,7 @@ def showMessages(username, all_):
     # this is needed to restore default status
     default_handler = signal.getsignal(signal.SIGINT)
     # changing handler:
-    signal.signal(signal.SIGINT, signalHandler)
+    signal.signal(signal.SIGINT, partial(signalHandler, False, False))
     
     s = "You don't have any " 
     if (len(messagesList) == 0):
@@ -189,8 +191,10 @@ def showMessages(username, all_):
     # restoring previous handler:
     signal.signal(signal.SIGINT, default_handler)
 
-def signalHandler(*args):
-    print('\nPlease wait few seconds..\n')
+
+def signalHandler(graphic, signum, frame):
+    if not graphic:
+        print('\nPlease wait few seconds..\n')
     prepareAndInvokeDelete()
     sys.exit()
 

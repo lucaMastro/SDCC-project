@@ -150,66 +150,71 @@ class ReadNewMessages(object):
         self.backButton.clicked.connect(self.backClicked)
         self.nextButton.clicked.connect(self.nextClicked)
         self.deleteButton.clicked.connect(self.deleteClicked)
+    
         # conencting spinbox on change value:
         self.spinBox.valueChanged.connect(self.jumpMessage)
     
-    def jumpMessage(self, n):
-        # n is the new value on spinBox
-        #
-        # -2 because a +1 occurs in showNext, and the n-th mess
-        # is in (n-1)-th position
-        self.toDisplayIndex = n - 2
-        self.nextClicked()
-        
+
     def startUseCase(self):
         # setting empty labels:
         self.fromField.setText('')
         self.objectField.setText('')
         self.bodyField.setPlainText('')
-        
         read.getMessages(self.username,all_=False,graphic=True)
         # creating a list of Message objects, based on the read.messagesList
         if len(read.messagesList) == 0:
-            supp.showPopup(('No message found', "You don't have any new message",\
-                    None, 0))
+            supp.showPopup(self.widgetStack, 'No message found', 
+                "You don't have any new message", None, False)
             return
-        # init to -1 to use nextClicked function to initialize first view
-        self.toDisplayIndex = -1
-        self.nextClicked()
+
+        # this will show first message
+        self.spinBox.setMinimum(1)
+
+    def jumpMessage(self, n):
+        if n == 0:
+            # updating spin box value to 0 means there was a mess which has
+            # been deleted
+            return
+
+        self.toDisplayIndex = n - 1
+        self.toDisplayIndex %= len(read.messagesList)
+        self.spinBox.setMaximum(len(read.messagesList))
+        self.showMessage()
+
+    def showMessage(self):
+        toDisplayMessage = read.messagesList[self.toDisplayIndex]
+        self.fromField.setText(toDisplayMessage.from_)
+        self.objectField.setText(toDisplayMessage.object_)
+        self.bodyField.setPlainText(toDisplayMessage.text)
+
+        # updating read.readMessages
+        read.messagesList[self.toDisplayIndex].read = True
 
 
     def nextClicked(self):
-        self.toDisplayIndex += 1
+        # updating spinbox text, automated invocation of jump n
+        self.spinBox.setValue(self.spinBox.value() + 1)
+
+    def deleteClicked(self):
+        read.messagesList.delete(self.toDisplayIndex)
+
         if len(read.messagesList) != 0:
-            self.toDisplayIndex %= len(read.messagesList)
-            self.spinBox.setMinimum(1)
-            self.spinBox.setMaximum(len(read.messagesList))
+            if self.toDisplayIndex == len(read.messagesList):
+                # this means i've just deleted the last element
+                # showing the 'new' last element by modifyin the spinbox.max
+                self.spinBox.setMaximum(self.toDisplayIndex)
+            else:
+                # otherwise keep showing n-th
+                self.showMessage()
         else:
             self.fromField.setText('')
             self.objectField.setText('')
             self.bodyField.setPlainText('')
             self.spinBox.setMinimum(0)
             self.spinBox.setMaximum(0)
-            supp.showPopup(('No other new message found', "You don't have new" +
-                " messages anymore", None, 0))
-            return
+            supp.showPopup(self.widgetStack, 'No other message found',
+                    "You don't have messages anymore", None, False)
 
-        toDisplayMessage = read.messagesList[self.toDisplayIndex]
-        self.fromField.setText(toDisplayMessage.from_)
-        self.objectField.setText(toDisplayMessage.object_)
-        self.bodyField.setPlainText(toDisplayMessage.text)
-
-        # updating spinBox number:
-        self.spinBox.setValue(self.toDisplayIndex + 1)
-
-        # updating read.readMessages
-        read.messagesList[self.toDisplayIndex].read = True
-
-    def deleteClicked(self):
-        read.messagesList.delete(self.toDisplayIndex)
-        self.toDisplayIndex -= 1
-        self.nextClicked()
-        return
 
     def backClicked(self):
         self.deleteAndMark()

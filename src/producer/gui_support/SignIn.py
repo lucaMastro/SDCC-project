@@ -117,10 +117,11 @@ class SignIn(object):
         lambda_response = response_list[0]
 
         if lambda_response == 'true': 
-            supp.showPopup(('Success!', 'Signin done.', None, 0))
+            supp.showPopup(self.widgetStack, 'Success!', 'Signin done.', None,
+                    False)
         else:
-            supp.showPopup(('Error!', 'Something went wrong:', 'Username still \
-                present', -1))
+            supp.showPopup(self.widgetStack, 'Error!', 'Something went wrong:', 
+                'Username still present', True)
 
 
     def backClicked(self):
