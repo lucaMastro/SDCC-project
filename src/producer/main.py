@@ -103,7 +103,10 @@ def commandLineClient():
 
 
 def commandLineParser(user_input, loginDone):
-    params = user_input.split(' ')
+    tmp_params = user_input.split(' ')
+    params = []
+    for i in tmp_params:
+        params += i.split(',')
     while '' in params:
         params.remove('')
 
@@ -198,7 +201,7 @@ def commandLineParser(user_input, loginDone):
                 return
 
         elif main_command == 'send':
-            # send -u <user1> <user2> .. <user_n> -o <object>
+            # send -u <user1>, <user2>,<user3> .. <user_n> -o <object>
             if len(params) < 3:
                 print('Error: no user given.')
                 return 4
