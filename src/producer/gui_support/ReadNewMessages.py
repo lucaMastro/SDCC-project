@@ -79,14 +79,11 @@ class ReadNewMessages(object):
         self.backButton.setObjectName("backButton")
         self.formLayoutWidget = QtWidgets.QWidget(ReadNewMessages)
         self.formLayoutWidget.setGeometry(QtCore.QRect(10, 104, 671, 271))
+        #---------------------------------------
         self.formLayoutWidget.setObjectName("formLayoutWidget")
         self.formLayout_2 = QtWidgets.QFormLayout(self.formLayoutWidget)
         self.formLayout_2.setContentsMargins(0, 0, 0, 0)
         self.formLayout_2.setObjectName("formLayout_2")
-        self.label_7 = QtWidgets.QLabel(self.formLayoutWidget)
-        self.label_7.setMaximumSize(QtCore.QSize(16777215, 50))
-        self.label_7.setObjectName("label_7")
-        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_7)
         self.label_2 = QtWidgets.QLabel(self.formLayoutWidget)
         self.label_2.setMaximumSize(QtCore.QSize(16777215, 50))
         self.label_2.setStyleSheet("")
@@ -95,22 +92,34 @@ class ReadNewMessages(object):
         self.label_4 = QtWidgets.QLabel(self.formLayoutWidget)
         self.label_4.setMaximumSize(QtCore.QSize(16777215, 50))
         self.label_4.setObjectName("label_4")
-        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_4)
+        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_4)
         self.fromField = QtWidgets.QLineEdit(self.formLayoutWidget)
         self.fromField.setWhatsThis("")
         self.fromField.setEchoMode(QtWidgets.QLineEdit.Normal)
-        self.fromField.setReadOnly(True)
         self.fromField.setPlaceholderText("")
         self.fromField.setObjectName("fromField")
+        self.fromField.setReadOnly(True)
         self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.fromField)
         self.objectField = QtWidgets.QLineEdit(self.formLayoutWidget)
-        self.objectField.setReadOnly(True)
         self.objectField.setObjectName("objectField")
-        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.objectField)
+        self.objectField.setReadOnly(True)
+        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.objectField)
+        self.label = QtWidgets.QLabel(self.formLayoutWidget)
+        self.label.setObjectName("label")
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label)
+        self.toField = QtWidgets.QLineEdit(self.formLayoutWidget)
+        self.toField.setObjectName("toField")
+        self.toField.setReadOnly(True)
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.toField)
         self.bodyField = QtWidgets.QPlainTextEdit(self.formLayoutWidget)
         self.bodyField.setReadOnly(True)
         self.bodyField.setObjectName("bodyField")
-        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.bodyField)
+        self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.bodyField)
+        self.label_7 = QtWidgets.QLabel(self.formLayoutWidget)
+        self.label_7.setMaximumSize(QtCore.QSize(16777215, 50))
+        self.label_7.setObjectName("label_7")
+        self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.label_7)
+        #---------------------------------------
         self.spinBox = QtWidgets.QSpinBox(ReadNewMessages)
         self.spinBox.setGeometry(QtCore.QRect(250, 390, 52, 30))
         self.spinBox.setSizeIncrement(QtCore.QSize(0, 0))
@@ -160,6 +169,7 @@ class ReadNewMessages(object):
         self.fromField.setText('')
         self.objectField.setText('')
         self.bodyField.setPlainText('')
+        self.toField.setText('')
         read.getMessages(self.username,all_=False,graphic=True)
         # creating a list of Message objects, based on the read.messagesList
         if len(read.messagesList) == 0:
@@ -169,6 +179,8 @@ class ReadNewMessages(object):
 
         # this will show first message
         self.spinBox.setMinimum(1)
+
+        self.spinBox.setMaximum(len(read.messagesList))
 
     def jumpMessage(self, n):
         if n == 0:
@@ -186,6 +198,7 @@ class ReadNewMessages(object):
         self.fromField.setText(toDisplayMessage.from_)
         self.objectField.setText(toDisplayMessage.object_)
         self.bodyField.setPlainText(toDisplayMessage.text)
+        self.toField.setText(toDisplayMessage.to)
 
         # updating read.readMessages
         read.messagesList[self.toDisplayIndex].read = True
@@ -210,6 +223,7 @@ class ReadNewMessages(object):
             self.fromField.setText('')
             self.objectField.setText('')
             self.bodyField.setPlainText('')
+            self.toField.setText('')
             self.spinBox.setMinimum(0)
             self.spinBox.setMaximum(0)
             supp.showPopup(self.widgetStack, 'No other message found',
@@ -236,6 +250,7 @@ class ReadNewMessages(object):
         self.label_7.setText(_translate("ReadNewMessages", "Message body:"))
         self.label_2.setText(_translate("ReadNewMessages", "From:"))
         self.label_4.setText(_translate("ReadNewMessages", "Object:"))
+        self.label.setText(_translate("ReadMessages", "To:"))
 
 
 if __name__ == '__main__':

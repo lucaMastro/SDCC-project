@@ -74,23 +74,32 @@ class SendMessage(object):
         self.backButton.setObjectName("backButton")
         self.formLayoutWidget = QtWidgets.QWidget(SendMessage)
         self.formLayoutWidget.setGeometry(QtCore.QRect(10, 104, 691, 271))
+        #-------------------------------------------------
         self.formLayoutWidget.setObjectName("formLayoutWidget")
+
+        
         self.formLayout_2 = QtWidgets.QFormLayout(self.formLayoutWidget)
         self.formLayout_2.setContentsMargins(0, 0, 0, 0)
         self.formLayout_2.setObjectName("formLayout_2")
         self.label_7 = QtWidgets.QLabel(self.formLayoutWidget)
         self.label_7.setMaximumSize(QtCore.QSize(16777215, 50))
         self.label_7.setObjectName("label_7")
-        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_7)
+        self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.label_7)
         self.label_2 = QtWidgets.QLabel(self.formLayoutWidget)
         self.label_2.setMaximumSize(QtCore.QSize(16777215, 50))
         self.label_2.setStyleSheet("")
         self.label_2.setObjectName("label_2")
-        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_2)
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_2)
         self.label_4 = QtWidgets.QLabel(self.formLayoutWidget)
         self.label_4.setMaximumSize(QtCore.QSize(16777215, 50))
         self.label_4.setObjectName("label_4")
-        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_4)
+        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_4)
+
+        self.label_1 = QtWidgets.QLabel(self.formLayoutWidget)
+        self.label_1.setMaximumSize(QtCore.QSize(16777215, 50))
+        self.label_1.setObjectName("label_1")
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_1)
+        
         self.destinationField = QtWidgets.QLineEdit(self.formLayoutWidget)
         self.destinationField.setToolTip("You can insert here multiple destiantion: dest1, dest2 ...")
         self.destinationField.setToolTipDuration(-1)
@@ -98,13 +107,19 @@ class SendMessage(object):
         self.destinationField.setEchoMode(QtWidgets.QLineEdit.Normal)
         self.destinationField.setPlaceholderText("")
         self.destinationField.setObjectName("destinationField")
-        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.destinationField)
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.destinationField)
         self.objectField = QtWidgets.QLineEdit(self.formLayoutWidget)
         self.objectField.setObjectName("objectField")
-        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.objectField)
+        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.objectField)
         self.bodyField = QtWidgets.QPlainTextEdit(self.formLayoutWidget)
         self.bodyField.setObjectName("bodyField")
-        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.bodyField)
+        self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.bodyField)
+
+        self.fromField = QtWidgets.QLineEdit(self.formLayoutWidget)
+        self.fromField.setObjectName("fromField")
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.fromField)
+        self.fromField.setReadOnly(True)
+        #-------------------------------------------------
 
         self.retranslateUi(SendMessage)
         QtCore.QMetaObject.connectSlotsByName(SendMessage)
@@ -147,6 +162,7 @@ class SendMessage(object):
     # when login done, set the username. It's a signal-slot function
     def updateUsername(self, usr):
         self.username = usr
+        self.fromField.setText(usr)
 
 
     def retranslateUi(self, SendMessage):
@@ -155,8 +171,9 @@ class SendMessage(object):
         self.sendButton.setText(_translate("SendMessage", "Send"))
         self.label_3.setText(_translate("SendMessage", "Send message"))
         self.label_7.setText(_translate("SendMessage", "Message body:"))
-        self.label_2.setText(_translate("SendMessage", "Destinations:"))
+        self.label_2.setText(_translate("SendMessage", "To:"))
         self.label_4.setText(_translate("SendMessage", "Object:"))
+        self.label_1.setText(_translate("SendMessage", "From:"))
 
 
 if __name__ == '__main__':
