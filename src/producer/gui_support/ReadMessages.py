@@ -71,7 +71,7 @@ class ReadMessages(object):
 "}")
         self.backButton.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("functionalities/images/back_arrow.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("gui_support/images/back_arrow.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.backButton.setIcon(icon)
         self.backButton.setIconSize(QtCore.QSize(50, 50))
         self.backButton.setObjectName("backButton")
@@ -146,10 +146,26 @@ class ReadMessages(object):
  "}")
         self.deleteButton.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("functionalities/images/delete.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap("gui_support/images/delete.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.deleteButton.setIcon(icon1)
         self.deleteButton.setIconSize(QtCore.QSize(20, 20))
         self.deleteButton.setObjectName("deleteButton")
+        self.newButtonLabel = QtWidgets.QPushButton(ReadMessages)
+        self.newButtonLabel.setGeometry(QtCore.QRect(336,390, 60, 30))
+        self.newButtonLabel.setStyleSheet("QPushButton\n"
+"{\n"
+"    background-color: #10151f;\n"
+"    color: white;\n"
+"    border-radius: 10px;\n"
+"    border-style: outset;\n"
+"    border-color: white;\n"
+"    border-width: 2px;\n"
+"}\n"
+"\n"
+"")
+        self.newButtonLabel.setVisible(False)
+        self.newButtonLabel.setObjectName("newButtonLabel")
+
 
         self.retranslateUi(ReadMessages)
         QtCore.QMetaObject.connectSlotsByName(ReadMessages)
@@ -170,6 +186,10 @@ class ReadMessages(object):
         self.bodyField.setPlainText('')
         self.toField.setText('')
         read.getMessages(self.username,graphic=True)
+
+        # changing to 0 will automatically display the first message if it's
+        # present
+        self.spinBox.setValue(0)
         # creating a list of Message objects, based on the read.messagesList
         if len(read.messagesList) == 0:
             supp.showPopup(self.widgetStack, 'No message found', 
@@ -198,6 +218,7 @@ class ReadMessages(object):
         self.objectField.setText(toDisplayMessage.object_)
         self.bodyField.setPlainText(toDisplayMessage.text)
         self.toField.setText(toDisplayMessage.to)
+        self.newButtonLabel.setVisible(toDisplayMessage.isNew)
 
         # updating read.readMessages
         read.messagesList[self.toDisplayIndex].read = True
@@ -250,14 +271,8 @@ class ReadMessages(object):
         self.label_4.setText(_translate("ReadMessages", "Object:"))
         self.label.setText(_translate("ReadMessages", "To:"))
 
+        self.newButtonLabel.setText(_translate("ReadMessages", "New!"))
 
-def main():
-    a = QtWidgets.QApplication(sys.argv)
-    r = ReadMessages()
-    r_ = QtWidgets.QDialog()
-    r.setupUi(r_)
-    r_.show()
-    sys.exit(a.exec_())
 
 if __name__ == '__main__':
     main()

@@ -75,7 +75,7 @@ class LogIn(QObject):
 "}")
         self.backButton.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("functionalities/images/back_arrow.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("gui_support/images/back_arrow.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.backButton.setIcon(icon)
         self.backButton.setIconSize(QtCore.QSize(50, 50))
         self.backButton.setObjectName("backButton")
@@ -131,8 +131,7 @@ class LogIn(QObject):
 
         # call login func and if else for checking login resul
 
-        response_list = regLog.registrationLogin(2, usr, pw)
-        lambda_response = response_list[0]
+        lambda_response = regLog.registrationLogin(2, usr, pw)
 
         if lambda_response == 'true': 
             # updating welcome label of loggedHome scene:

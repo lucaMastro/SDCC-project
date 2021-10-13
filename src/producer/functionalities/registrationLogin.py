@@ -10,8 +10,9 @@ import json
 def registrationLogin(operationCode, user=None, pw=None):
     input_params = {}
 
-    if (user == None):
-        user = input("Give me the username: ")
+    # user == None never happends
+    #if (user == None):
+    #    user = input("Give me the username: ")
     if (pw == None):
         pw = getpass("Give me the password: ")
     
@@ -33,6 +34,5 @@ def registrationLogin(operationCode, user=None, pw=None):
 
     payload = response['Payload'].read().decode('utf-8')
 
-    # if it's a login, i have to trace username value
-    return [payload, user]
+    return payload
 

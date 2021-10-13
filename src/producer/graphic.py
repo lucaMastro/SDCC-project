@@ -68,8 +68,8 @@ def main():
     widgetStack.show()
 
     #global username
-    #username = 'luca'
-    #widgetStack.setCurrentIndex(widgetStack.sceneDict['loggedHome'])
+    #username = 'a'
+    #widgetStack.setCurrentIndex(widgetStack.sceneDict['readMessages'])
 
     sys.exit(app.exec_())
 

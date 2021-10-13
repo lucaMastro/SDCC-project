@@ -26,35 +26,32 @@ def signInSelected(operationCode, user=None):
     # a Boolean value:
     #   True stands for registration done
     #   False stands for registration problem
-    response_list = regLog.registrationLogin(operationCode, user)
-    lambda_response = response_list[0]
+    lambda_response = regLog.registrationLogin(operationCode, user)
 
     if lambda_response == 'true': 
-        print('Success.')
+        print('Success.\n')
         return 1
     else:
-        dic = ast.literal_eval(lambda_response)
-        print('Error: {}'.format(dic['errorMessage']))
+        print('Error: {}\n'.format(lambda_response))
         return None
 
 def loginSelected(operationCode, user=None):
     global username
     
-    response_list = regLog.registrationLogin(operationCode, user)
-    lambda_response = response_list[0]
+    lambda_response = regLog.registrationLogin(operationCode, user)
 
     if lambda_response == 'true': 
-        print('Success.')
-        username = response_list[1]
+        print('Success.\n')
+        username = user
         return 2
     else:
-        print('Error: wrong username or password')
+        print('Error: {}\n'.format(lambda_response))
         return None
 
 
 def getUsersList():
     l = usr.getUsrList()
-    print(l)
+    print(l, '\n')
     return 1
 
 def readAllMessages():
@@ -69,7 +66,7 @@ def readNewMessages():
 
 def sendMessage(params):
     send.sendMessage(params)
-    print('Message(s) sent.')
+    print('Message(s) sent.\n')
     return 4
 
 def clear():
@@ -122,7 +119,7 @@ def commandLineParser(user_input, loginDone):
     if main_command == 'exit':
         # checking for no params:
         if len(params) != 1:
-            print('Error: too mach params.')
+            print('Error: too mach params.\n')
             return 1
         else:
             return exitSelected()
@@ -130,7 +127,7 @@ def commandLineParser(user_input, loginDone):
     elif main_command == 'clear':
         # checking for no params:
         if len(params) != 1:
-            print('Error: too mach params.')
+            print('Error: too mach params.\n')
             return 1
         else:
             return clear()
@@ -138,7 +135,7 @@ def commandLineParser(user_input, loginDone):
     elif main_command == 'help':
         # checking for no params:
         if len(params) != 1:
-            print('Error: too mach params.')
+            print('Error: too mach params.\n')
             return 1
         else:
             return showHelp()
@@ -151,11 +148,11 @@ def commandLineParser(user_input, loginDone):
         if main_command == 'reg':
             # reg -u <user>
             if len(params) != 3:
-                print('Error: you have to specify user.')
+                print('Error: you have to specify user.\n')
                 return 1
 
             if params[1] != '-u':
-                print('Error: invalid option.')
+                print('Error: invalid option.\n')
                 return 1
 
             signInSelected(1, params[2])
@@ -163,22 +160,22 @@ def commandLineParser(user_input, loginDone):
         elif main_command == 'log':
             # log -u <user>
             if len(params) != 3:
-                print('Error: you have to specify user.')
+                print('Error: you have to specify user.\n')
                 return 1
 
             if params[1] != '-u':
-                print('Error: invalid option.')
+                print('Error: invalid option.\n')
                 return 1
 
             return loginSelected(2, params[2])
         else: 
-            print('Error: command not found.')
+            print('Error: command not found.\n')
     # login Done. usr list, send and read (all and new) accepted
     else:
         if main_command == 'usr_list':
             # usr_list
             if len(params) != 1:
-                print('Error: too mach params.')
+                print('Error: too mach params.\n')
                 return 1
 
             return getUsersList() 
@@ -190,11 +187,11 @@ def commandLineParser(user_input, loginDone):
                 readAllMessages()
                 return 
             elif len(params) > 2: # the name and 2 or more params
-                print('Error: too much argument.')
+                print('Error: too much argument.\n')
                 return 2
             # we have a param. check if it's the -n
             if params[1] != '-n':
-                print('Error: invalid option.')
+                print('Error: invalid option.\n')
                 return 2
             else:
                 readNewMessages()
@@ -203,11 +200,11 @@ def commandLineParser(user_input, loginDone):
         elif main_command == 'send':
             # send -u <user1>, <user2>,<user3> .. <user_n> -o <object>
             if len(params) < 3:
-                print('Error: no user given.')
+                print('Error: no user given.\n')
                 return 4
 
             if params[1] != '-t':
-                print('Error: invalid option.')
+                print('Error: invalid option.\n')
                 return 4
             
             usr_list = []
@@ -225,14 +222,14 @@ def commandLineParser(user_input, loginDone):
             # params are finished. In this case, the -o option is missing
 
             if not oOptionFound:
-                print('Error: missing -o option for object.')
+                print('Error: missing -o option for object.\n')
                 return 4
             # checking if params is correctly len size:
             # if everything was correct, now we have i that is the -o index,
             # then just check if the i+1-th element of param exists:
             #
             if i + 1 == len(params):
-                print('Error: missing object.')
+                print('Error: missing object.\n')
                 return 4
             obj_ = params[i + 1]
             for j in range(i + 2, len(params)):
@@ -248,7 +245,7 @@ def commandLineParser(user_input, loginDone):
             sendMessage(lambdaParams)
             return 2
         else: 
-            print('Error: command not found.')
+            print('Error: command not found.\n')
 
     return 
 
@@ -289,7 +286,7 @@ interactively):')
     print('\t\t>> read -n')
     print('\tSending a messages to one or more users (note that message \
 body will be asked interactively):')
-    print('\t\t>> send -t <dest1> <dest2> ... <dest_n> -o <object> ')
+    print('\t\t>> send -t <dest1> <dest2> ... <dest_n> -o <object> \n')
     return 
 
 
@@ -303,7 +300,7 @@ if __name__ == '__main__':
         if (sys.argv[1] == '-h'):
             showHelp()
         else: 
-            print('Invalid params.')
+            print('Invalid params.\n')
             showHelp()
         
     else:

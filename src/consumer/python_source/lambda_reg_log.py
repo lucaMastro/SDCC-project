@@ -26,7 +26,7 @@ def performeRegistration(usr, pw):
         cursor.callproc("sign_in", args)
         a = True
     except Exception as e:
-        a = False
+        a = str(e) 
         # for logging 
         print('The exception is: ', str(e))
     finally:

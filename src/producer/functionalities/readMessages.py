@@ -120,7 +120,7 @@ def showMessages(username, all_):
     # this is needed to restore default status
     default_handler = signal.getsignal(signal.SIGINT)
     # changing handler:
-    signal.signal(signal.SIGINT, partial(signalHandler, False, False))
+    signal.signal(signal.SIGINT, partial(signalHandler, False))
     
     s = "You don't have any " 
     if (len(messagesList) == 0):
