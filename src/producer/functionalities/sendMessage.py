@@ -17,13 +17,17 @@ def getMsgBody():
 
         
 def sendMessage(params):
+    object_ = params['object']
+    receivers = params['receivers']
+    sender = params['sender']
+    if params['reply']:
+        print('to: {}'.format(receivers))
+        print('object: {}'.format(object_))
+
     text = params['body']
     if text == None: # cli-case
         print('Give me message text (to stop input, insert a blank line):')
         text = getMsgBody() 
-    object_ = params['object']
-    receivers = params['receivers']
-    sender = params['sender']
         
     sqs = boto3.resource('sqs')
     queue = sqs.get_queue_by_name(QueueName='send_messages_sqs_queue')

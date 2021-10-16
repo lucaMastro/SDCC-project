@@ -242,6 +242,7 @@ def commandLineParser(user_input, loginDone):
             lambdaParams['body'] = None
             global username
             lambdaParams['sender'] = username
+            lambdaParams['reply'] = False
             sendMessage(lambdaParams)
             return 2
         else: 

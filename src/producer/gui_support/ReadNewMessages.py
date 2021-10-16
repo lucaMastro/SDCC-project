@@ -11,15 +11,16 @@ import gui_support.support_functions as supp
 
 
 
-class ReadNewMessages(object):
+class ReadNewMessages(QObject):
     backScene = 'loggedHome'    
+    replySignal = pyqtSignal(dict)
     
     def __init__(self, WidgetStack=None):
         super().__init__()
         self.widgetStack = WidgetStack
 
 
-    def setupUi(self, ReadNewMessages):
+    def setupUi(self, ReadNewMessages, SendMessage):
         ReadNewMessages.setObjectName("ReadNewMessages")
         ReadNewMessages.setEnabled(True)
         ReadNewMessages.resize(720, 480)
@@ -28,9 +29,9 @@ class ReadNewMessages(object):
 "  color: rgb(255, 255, 255);\n"
 "  border: 1px solid #ffffff;\n"
 "}")
-        self.nextButton = QtWidgets.QPushButton(ReadNewMessages)
-        self.nextButton.setGeometry(QtCore.QRect(564, 390, 106, 30))
-        self.nextButton.setStyleSheet("QPushButton\n"
+        self.replyButton = QtWidgets.QPushButton(ReadNewMessages)
+        self.replyButton.setGeometry(QtCore.QRect(564, 430, 106, 30))
+        self.replyButton.setStyleSheet("QPushButton\n"
 "{\n"
 "    background-color: #10151f;\n"
 "    color: white;\n"
@@ -45,7 +46,26 @@ class ReadNewMessages(object):
 "    border-color: white;\n"
 "    border-width: 2px;\n"
 "}")
-        self.nextButton.setObjectName("nextButton")
+        self.replyButton.setObjectName("replyButton")
+
+        self.replyAllButton = QtWidgets.QPushButton(ReadNewMessages)
+        self.replyAllButton.setGeometry(QtCore.QRect(422, 430, 106,30))
+        self.replyAllButton.setStyleSheet("QPushButton\n"
+"{\n"
+"    background-color: #10151f;\n"
+"    color: white;\n"
+"    border-radius: 10px;\n"
+"    border-style: outset;\n"
+"    border-color: black;\n"
+"    border-width: 1px;\n"
+"}\n"
+"\n"
+"QPushButton:hover{\n"
+"    background-color: #242f45;\n"
+"    border-color: white;\n"
+"    border-width: 2px;\n"
+"}")
+        self.replyAllButton.setObjectName("replyAllButton")
         self.label_3 = QtWidgets.QLabel(ReadNewMessages)
         self.label_3.setGeometry(QtCore.QRect(10, 40, 699, 50))
         self.label_3.setMaximumSize(QtCore.QSize(16777215, 50))
@@ -55,7 +75,7 @@ class ReadNewMessages(object):
         self.label_3.setAlignment(QtCore.Qt.AlignCenter)
         self.label_3.setObjectName("label_3")
         self.backButton = QtWidgets.QPushButton(ReadNewMessages)
-        self.backButton.setGeometry(QtCore.QRect(50, 390, 106, 30))
+        self.backButton.setGeometry(QtCore.QRect(50, 430, 106, 30))
         self.backButton.setStyleSheet("QPushButton\n"
 "{\n"
 "    background-color: #10151f;\n"
@@ -121,14 +141,14 @@ class ReadNewMessages(object):
         self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.label_7)
         #---------------------------------------
         self.spinBox = QtWidgets.QSpinBox(ReadNewMessages)
-        self.spinBox.setGeometry(QtCore.QRect(250, 390, 52, 30))
+        self.spinBox.setGeometry(QtCore.QRect(139, 390, 52, 30))
         self.spinBox.setSizeIncrement(QtCore.QSize(0, 0))
         self.spinBox.setObjectName("spinBox")
 
 
 
         self.deleteButton = QtWidgets.QPushButton(ReadNewMessages)
-        self.deleteButton.setGeometry(QtCore.QRect(430, 390, 50, 30))
+        self.deleteButton.setGeometry(QtCore.QRect(514, 390, 50, 30))
         #self.deleteButton.setToolTip("Delete this message")
         #self.deleteButton.setToolTipDuration(-1)
         self.deleteButton.setStyleSheet("QPushButton\n"
@@ -173,12 +193,56 @@ class ReadNewMessages(object):
         QtCore.QMetaObject.connectSlotsByName(ReadNewMessages)
 
         self.backButton.clicked.connect(self.backClicked)
-        self.nextButton.clicked.connect(self.nextClicked)
+        self.replyButton.clicked.connect(self.replyClicked)
+        self.replyAllButton.clicked.connect(self.replyAllClicked)
         self.deleteButton.clicked.connect(self.deleteClicked)
     
+        self.replySignal.connect(SendMessage.replyHandler)
         # conencting spinbox on change value:
         self.spinBox.valueChanged.connect(self.jumpMessage)
     
+    def replyClicked(self):
+        #TODO
+        dict_param = dict()
+        dict_param['to'] = self.fromField.text()
+        dict_param['object'] = 'RE: ' + self.objectField.text()
+        # updating status
+        self.deleteAndMark()
+        self.replySignal.emit(dict_param)
+        self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['sendMessage'])
+        return
+
+    def replyAllClicked(self):
+        #TODO
+        dict_param = dict()
+        # getting all original receivers. there is me in this list:
+        oldReceivers = self.toField.text()
+        # splitting and deleting me:
+        new_receivers = oldReceivers.split(', ')
+        s = ''
+
+        for i in range(0, len(new_receivers) - 1):
+            item = new_receivers[i]
+            # excluding empty strings and me
+            if item != '' and item != self.username:
+                # removing eventual initial space
+                s += item.strip(' ') + ', '
+
+        item = new_receivers[len(new_receivers) - 1]
+        if item != '' and item != self.username:
+            # removing eventual initial space
+            s += item.strip(' ')
+        
+        # adding sender:
+        s += self.fromField.text()
+
+        dict_param['to'] = s
+        dict_param['object'] = 'RE: ' + self.objectField.text()
+        # updating status
+        self.deleteAndMark()
+        self.replySignal.emit(dict_param)
+        self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['sendMessage'])
+        return
 
     def startUseCase(self):
         # setting empty labels:
@@ -225,10 +289,6 @@ class ReadNewMessages(object):
         read.messagesList[self.toDisplayIndex].read = True
 
 
-    def nextClicked(self):
-        # updating spinbox text, automated invocation of jump n
-        self.spinBox.setValue(self.spinBox.value() + 1)
-
     def deleteClicked(self):
         read.messagesList.delete(self.toDisplayIndex)
 
@@ -266,7 +326,8 @@ class ReadNewMessages(object):
     def retranslateUi(self, ReadNewMessages):
         _translate = QtCore.QCoreApplication.translate
         ReadNewMessages.setWindowTitle(_translate("ReadNewMessages", "Read new messages page"))
-        self.nextButton.setText(_translate("ReadNewMessages", "Next"))
+        self.replyButton.setText(_translate("ReadNewMessages", "Reply"))
+        self.replyAllButton.setText(_translate("ReadNewMessages", "Reply All"))
         self.label_3.setText(_translate("ReadNewMessages", "Read new messages"))
         self.label_7.setText(_translate("ReadNewMessages", "Message body:"))
         self.label_2.setText(_translate("ReadNewMessages", "From:"))
@@ -274,6 +335,13 @@ class ReadNewMessages(object):
         self.label.setText(_translate("ReadMessages", "To:"))
         self.newButtonLabel.setText(_translate("ReadMessages", "New!"))
 
+def main():
+    app = QtWidgets.QApplication(sys.argv)
+    readMessages = QtWidgets.QDialog()
+    ui = ReadNewMessages()
+    ui.setupUi(readMessages)
+    readMessages.show()
+    sys.exit(app.exec_())
 
 if __name__ == '__main__':
     main()

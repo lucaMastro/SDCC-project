@@ -55,11 +55,11 @@ def main():
     widgetStack.addWidget(sendMessage)
     
     readMessages = QtWidgets.QDialog()
-    readMessages_ui.setupUi(readMessages)
+    readMessages_ui.setupUi(readMessages, sendMessage_ui)
     widgetStack.addWidget(readMessages)
     
     readNewMessages = QtWidgets.QDialog()
-    readNewMessages_ui.setupUi(readNewMessages)
+    readNewMessages_ui.setupUi(readNewMessages, sendMessage_ui)
     widgetStack.addWidget(readNewMessages)
 
     widgetStack.setFixedHeight(480)

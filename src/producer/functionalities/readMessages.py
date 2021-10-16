@@ -8,6 +8,7 @@ from functools import partial
 import functionalities.deleteMessagesAndMarkAsRead as delAndMark
 import functionalities.Message as mess 
 import gui_support.support_functions as supp 
+import functionalities.sendMessage as send 
 
 messagesList = []
 
@@ -148,7 +149,7 @@ def showMessages(username, all_):
 
         print('Give me a command:')
         print('c = show next, b = break, d = delete this message, j <n>' +
-        ' = show n-th message\n')
+        ' = show n-th message, r [<-a>] = reply [to all]\n')
         cmd = input('user: {} - read >> '.format(username))
 
         if cmd == 'c':
@@ -164,6 +165,62 @@ def showMessages(username, all_):
             params = cmd.split(' ')
             while '' in params:
                 params.remove('')
+
+            if params[0] == 'r':
+                if len(params) == 2:
+                    dict_param = dict()
+                    # reply all case:
+                    if params[1] == '-a':
+                        curr_message = messagesList[current]
+                        old_receivers = curr_message.to
+                        new_receivers = old_receivers.split(', ')
+                        s = ''
+                        for i in range(0, len(new_receivers) - 1):
+                            item = new_receivers[i]
+                            # excluding empty strings and me
+                            if item != '' and item != username:
+                                # removing eventual initial space
+                                s += item.strip(' ') + ', '
+
+                        item = new_receivers[len(new_receivers) - 1]
+                        if item != '' and item != username:
+                            # removing eventual initial space
+                            s += item.strip(' ')
+                        
+                        # adding sender:
+                        s += curr_message.from_
+
+                        dict_param['receivers'] = s
+                        dict_param['object'] = 'RE: ' + curr_message.object_ 
+                        dict_param['sender'] = username 
+                        dict_param['reply'] = True
+                        dict_param['body'] = None
+                        # updating status
+                        prepareAndInvokeDelete()
+                        # starting send:
+                        send.sendMessage(dict_param)
+                        continue 
+                    else:
+                        print('Error: invalid params.\n')
+                        continue
+
+                elif len(params) == 1:
+                    dict_param = dict()
+                    # reply all case:
+                    dict_param['receivers'] = curr_message.from_  
+                    dict_param['object'] = 'RE: ' + curr_message.object_ 
+                    dict_param['sender'] = username 
+                    dict_param['reply'] = True
+                    dict_param['body'] = None
+                    # updating status
+                    prepareAndInvokeDelete()
+                    # starting send:
+                    send.sendMessage(dict_param)
+                    continue 
+
+                else:
+                    print('Error: invalid params.\n')
+                    continue
 
             if len(params) != 2 or params[0] != 'j':
                 print('Invalid input.\n')

@@ -175,6 +175,10 @@ class SendMessage(object):
         self.label_4.setText(_translate("SendMessage", "Object:"))
         self.label_1.setText(_translate("SendMessage", "From:"))
 
+    def replyHandler(self, dict_param):
+        #TODO
+        self.destinationField.setText(dict_param['to'])
+        self.objectField.setText(dict_param['object'])
 
 if __name__ == '__main__':
     main()
