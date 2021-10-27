@@ -24,11 +24,15 @@ def read_messages(event, context):
     response = client.list_objects_v2(Bucket=MESSAGE_BUCKET_NAME, Prefix=folder)
     # response is a dic. there is the pair 'Contents' : list. the list keeps the objects entry.
     listOfObjects = response['Contents']
+
+    #sorting list
+    get_last_modified = lambda obj: int(obj['LastModified'].strftime('%s'))
+    sortedListOfKeys = [obj['Key'] for obj in sorted(listOfObjects,
+        key=get_last_modified, reverse = True)]
     
     # Each element of the list is a dict that keeps key and other data. We only need keys:
     listOfKeys = []
-    for obj in listOfObjects:
-        k = obj['Key']
+    for k in sortedListOfKeys:
         # resonse keeps also the folder key. just excluding it:
         if not k.endswith(folder):
             listOfKeys.append(k)
