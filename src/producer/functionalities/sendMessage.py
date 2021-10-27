@@ -1,5 +1,4 @@
 import boto3 
-#from Message import Message
 
 
 def getMsgBody():
@@ -29,6 +28,9 @@ def sendMessage(params):
         print('Give me message text (to stop input, insert a blank line):')
         text = getMsgBody() 
         
+    if text == '':
+      text = ' '
+
     sqs = boto3.resource('sqs')
     queue = sqs.get_queue_by_name(QueueName='send_messages_sqs_queue')
 

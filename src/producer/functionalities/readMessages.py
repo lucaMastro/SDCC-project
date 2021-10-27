@@ -127,7 +127,7 @@ def showMessages(username, all_):
     if (len(messagesList) == 0):
         if not all_:
             s += 'new '
-        s += "message to display."
+        s += "message to display.\n"
         print(s)
         return
 
@@ -205,8 +205,9 @@ def showMessages(username, all_):
                         continue
 
                 elif len(params) == 1:
+                    curr_message = messagesList[current]
                     dict_param = dict()
-                    # reply all case:
+                    # reply case:
                     dict_param['receivers'] = curr_message.from_  
                     dict_param['object'] = 'RE: ' + curr_message.object_ 
                     dict_param['sender'] = username 
@@ -215,6 +216,7 @@ def showMessages(username, all_):
                     # updating status
                     prepareAndInvokeDelete()
                     # starting send:
+                    print() # printing a new-line
                     send.sendMessage(dict_param)
                     continue 
 
@@ -241,7 +243,7 @@ def showMessages(username, all_):
 
     # all messages have ben read
     if current == len(messagesList):
-        print("You don't have other messages.")
+        print("You don't have other messages.\n")
     
     # make changes on aws
     prepareAndInvokeDelete()

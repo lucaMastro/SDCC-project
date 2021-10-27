@@ -89,7 +89,7 @@ resource "aws_iam_role" "send_message_iam_role" {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Action": "sts:AssumeRole",
+      "Action": "sts:AssumeRole", 
       "Principal": {
         "Service": "lambda.amazonaws.com"
       },
@@ -163,7 +163,10 @@ resource "aws_iam_policy" "s3_write_policy" {
               "s3:PutObject",
               "s3:PutObjectTagging", #this permits to tag objects
             ],
-            "Resource": "arn:aws:s3:::*/*"
+            "Resource": [
+              "arn:aws:s3:::message-bucket-sdcc-20-21",
+              "arn:aws:s3:::message-bucket-sdcc-20-21/*"
+            ]
     }
   ]
 })
@@ -185,7 +188,33 @@ resource "aws_iam_policy" "s3_read_policy" {
               "s3:GetObject",
               "s3:GetObjectTagging", #this permits to read tag
             ],
-            "Resource": "arn:aws:s3:::*/*"
+            "Resource": [
+              "arn:aws:s3:::message-bucket-sdcc-20-21",
+              "arn:aws:s3:::message-bucket-sdcc-20-21/*"
+            ]
+    }
+  ]
+})
+}
+
+resource "aws_iam_policy" "s3_delete_policy" {
+  name        = "s3_delete_policy"
+  path        = "/"
+  description = "IAM policy for a lambda"
+
+  policy = jsonencode({
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+            "Effect": "Allow",
+            "Action": [
+              "s3:ListBucket",
+              "s3:DeleteObject",
+            ],
+            "Resource": [
+              "arn:aws:s3:::message-bucket-sdcc-20-21",
+              "arn:aws:s3:::message-bucket-sdcc-20-21/*"
+            ]
     }
   ]
 })
@@ -260,6 +289,10 @@ resource "aws_iam_role_policy_attachment" "send_message_policy_attach_s3_write" 
   role       = aws_iam_role.send_message_iam_role.name
   policy_arn = aws_iam_policy.s3_write_policy.arn
 }
+resource "aws_iam_role_policy_attachment" "send_message_policy_attach_s3_read" {
+  role       = aws_iam_role.send_message_iam_role.name
+  policy_arn = aws_iam_policy.s3_read_policy.arn
+}
 
 resource "aws_iam_role_policy_attachment" "send_message_policy_log_attach" {
   role       = aws_iam_role.send_message_iam_role.name
@@ -280,6 +313,10 @@ resource "aws_iam_role_policy_attachment" "manage_del_and_mark_s3_write" {
 resource "aws_iam_role_policy_attachment" "manage_del_and_mark_s3_read" {
   role       = aws_iam_role.manage_del_and_mark.name
   policy_arn = aws_iam_policy.s3_read_policy.arn
+}
+resource "aws_iam_role_policy_attachment" "manage_del_and_mark_policy_attach_s3_delete" {
+  role       = aws_iam_role.manage_del_and_mark.name
+  policy_arn = aws_iam_policy.s3_delete_policy.arn
 }
 # ----------------------------------------------------------
 # Lambda functions
@@ -353,26 +390,6 @@ resource "aws_s3_bucket" "message-bucket-sdcc-20-21" {
   acl    = "private"
 }
 
-
-resource "aws_s3_bucket_policy" "b" {
-  bucket = aws_s3_bucket.message-bucket-sdcc-20-21.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Id      = "MYBUCKETPOLICY"
-    Statement = [
-      {
-        Effect    = "Allow"
-        Principal: "*"
-        Action    = "s3:*"
-        Resource = [
-          aws_s3_bucket.message-bucket-sdcc-20-21.arn,
-          "${aws_s3_bucket.message-bucket-sdcc-20-21.arn}/*",
-        ]
-      },
-    ]
-  })
-}
 
 
 

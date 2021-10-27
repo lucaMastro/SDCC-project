@@ -20,12 +20,26 @@ application_name = ''
 def exitSelected():
     return 0
 
+def parseUsername(user):
+    invalidChars = [',', ';', '.', ':', '/']
+    for c in invalidChars:
+        if c in user:
+            return False
+    return True 
+
 def signInSelected(operationCode, user=None):
     
-    # following function returns the lambda function return value. It's
-    # a Boolean value:
-    #   True stands for registration done
-    #   False stands for registration problem
+    # parsing user input
+    isValid = parseUsername(user)
+    if not isValid:
+        print('Error: username cannot contain following chars:')
+        print("',', ';', '.', ':', '/'\n")
+        return None
+
+    # the following invocation returns the lambda function return value. 
+    # It's a String value:
+    #   'true' stands for registration done
+    #   The error message of the lamda's invocation
     lambda_response = regLog.registrationLogin(operationCode, user)
 
     if lambda_response == 'true': 
@@ -271,10 +285,10 @@ def showHelp():
     print("Before logging in:")
     print('\tSigning in to the system (note that password will be asked \
 interactively):')
-    print('\t\t>> reg -u <username_with_wich_signin_in>')
+    print('\t\t>> reg -u <username_with_wich_signing_up>')
     print('\tLogging in to the system (note that password will be asked \
 interactively):')
-    print('\t\t>> log -u <username_with_wich_signin_in>\n')
+    print('\t\t>> log -u <username_with_wich_loging_in>\n')
 
     print("After logging in:")
     print('\tClearing the screen:')
