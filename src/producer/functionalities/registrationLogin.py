@@ -1,4 +1,4 @@
-from getpass import getpass 
+from stdiomask import getpass 
 import boto3 
 import json
 
@@ -14,13 +14,15 @@ def registrationLogin(operationCode, user=None, pw=None):
     #if (user == None):
     #    user = input("Give me the username: ")
     if (pw == None):
-        pw = getpass("Give me the password: ")
+        pw = getpass("Give me the password: ", mask='*')
     
     if operationCode == 1:
         operation = 'Registration'
     elif operationCode == 2:
         operation = 'Login'
 
+    print('{}.'.format(pw))
+    input()
     input_params = {}
     input_params['Operation'] = operation 
     input_params['Username'] = user 

@@ -13,14 +13,23 @@ def getMsgBody():
     print('\nSending message(s)...')
     return lines 
 
-
+def makeStringFromList(l):
+    s = ''
+    for i in range(len(l) - 1):
+      s += l[i] + ', '
+    s += l[len(l) - 1]
+    return s
+  
         
 def sendMessage(params):
     object_ = params['object']
     receivers = params['receivers']
     sender = params['sender']
+
+    str_list = ''
     if params['reply']:
-        print('to: {}'.format(receivers))
+        str_list = makeStringFromList(receivers)
+        print('to: {}'.format(str_list))
         print('object: {}'.format(object_))
 
     text = params['body']
@@ -29,16 +38,13 @@ def sendMessage(params):
         text = getMsgBody() 
         
     if text == '':
-      text = ' '
+        text = ' '
 
     sqs = boto3.resource('sqs')
     queue = sqs.get_queue_by_name(QueueName='send_messages_sqs_queue')
 
-    str_list = ''
-    for rec in receivers:
-        str_list += rec + ', '
-    # str_list is "a, b, c, ". removing last space and comma:
-    str_list = str_list[:-2]
+    if str_list == '':
+        str_list = makeStringFromList(receivers)    
 
     for rec in receivers:
         queue.send_message(MessageBody = text, MessageAttributes = {

@@ -155,6 +155,7 @@ def showMessages(username, all_):
         if cmd == 'c':
             current += 1
         elif cmd == 'b':
+            print()
             break
         elif cmd == 'd':
             messagesList.delete(current)
@@ -166,6 +167,7 @@ def showMessages(username, all_):
             while '' in params:
                 params.remove('')
 
+            # reply case. may have argument
             if params[0] == 'r':
                 if len(params) == 2:
                     dict_param = dict()
@@ -174,23 +176,13 @@ def showMessages(username, all_):
                         curr_message = messagesList[current]
                         old_receivers = curr_message.to
                         new_receivers = old_receivers.split(', ')
-                        s = ''
-                        for i in range(0, len(new_receivers) - 1):
-                            item = new_receivers[i]
-                            # excluding empty strings and me
-                            if item != '' and item != username:
-                                # removing eventual initial space
-                                s += item.strip(' ') + ', '
-
-                        item = new_receivers[len(new_receivers) - 1]
-                        if item != '' and item != username:
-                            # removing eventual initial space
-                            s += item.strip(' ')
-                        
+                        # deleting me from the receivers list
+                        new_receivers.remove(username)
                         # adding sender:
-                        s += curr_message.from_
+                        if curr_message.from_ not in new_receivers:
+                            new_receivers.append(curr_message.from_)
 
-                        dict_param['receivers'] = s
+                        dict_param['receivers'] = new_receivers 
                         dict_param['object'] = 'RE: ' + curr_message.object_ 
                         dict_param['sender'] = username 
                         dict_param['reply'] = True
@@ -208,7 +200,7 @@ def showMessages(username, all_):
                     curr_message = messagesList[current]
                     dict_param = dict()
                     # reply case:
-                    dict_param['receivers'] = curr_message.from_  
+                    dict_param['receivers'] = [curr_message.from_]
                     dict_param['object'] = 'RE: ' + curr_message.object_ 
                     dict_param['sender'] = username 
                     dict_param['reply'] = True

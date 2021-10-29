@@ -186,6 +186,7 @@ class ReadMessages(QObject):
         self.newButtonLabel.setVisible(False)
         self.newButtonLabel.setObjectName("newButtonLabel")
 
+        self.spinBox.setMinimum(1)
 
         self.retranslateUi(ReadMessages)
         QtCore.QMetaObject.connectSlotsByName(ReadMessages)
@@ -202,7 +203,7 @@ class ReadMessages(QObject):
  
     def replyClicked(self):
         dict_param = dict()
-        dict_param['to'] = self.fromField.text()
+        dict_param['to'] = [self.fromField.text()]
         dict_param['object'] = 'RE: ' + self.objectField.text()
         # updating status
         self.deleteAndMark()
@@ -216,24 +217,12 @@ class ReadMessages(QObject):
         oldReceivers = self.toField.text()
         # splitting and deleting me:
         new_receivers = oldReceivers.split(', ')
-        s = ''
-
-        for i in range(0, len(new_receivers) - 1):
-            item = new_receivers[i]
-            # excluding empty strings and me
-            if item != '' and item != self.username:
-                # removing eventual initial space
-                s += item.strip(' ') + ', '
-
-        item = new_receivers[len(new_receivers) - 1]
-        if item != '' and item != self.username:
-            # removing eventual initial space
-            s += item.strip(' ')
-        
+        new_receivers.remove(self.username)
         # adding sender:
-        s += self.fromField.text()
+        if self.fromField.text() not in new_receivers:
+            new_receivers.append(self.fromField.text())
 
-        dict_param['to'] = s
+        dict_param['to'] = new_receivers
         dict_param['object'] = 'RE: ' + self.objectField.text()
         # updating status
         self.deleteAndMark()
@@ -249,18 +238,14 @@ class ReadMessages(QObject):
         self.toField.setText('')
         read.getMessages(self.username,graphic=True)
 
-        # changing to 0 will automatically display the first message if it's
-        # present
-        self.spinBox.setValue(0)
-        # creating a list of Message objects, based on the read.messagesList
         if len(read.messagesList) == 0:
             supp.showPopup(self.widgetStack, 'No message found', 
                 "You don't have any message", None, False)
             return
         
         # this will show first message
-        self.spinBox.setMinimum(1)
-        self.spinBox.setValue(1)
+        self.toDisplayIndex = 0
+        self.showMessage()
 
         self.spinBox.setMaximum(len(read.messagesList))
 
@@ -269,7 +254,6 @@ class ReadMessages(QObject):
             # updating spin box value to 0 means there was a mess which has
             # been deleted
             return
-
         self.toDisplayIndex = n - 1
         self.toDisplayIndex %= len(read.messagesList)
         self.spinBox.setMaximum(len(read.messagesList))

@@ -149,6 +149,8 @@ class LogIn(QObject):
                     lambda_response, True)
 
     def backClicked(self):
+        self.userField.setText('')
+        self.passwordField.setText('')
         self.widgetStack.setCurrentIndex(
                 self.widgetStack.sceneDict[self.backScene])
 

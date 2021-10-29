@@ -5,3 +5,4 @@ utility
 .terraform*
 *.pyc
 test-env
+*.env

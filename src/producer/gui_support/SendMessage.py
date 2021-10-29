@@ -126,17 +126,22 @@ class SendMessage(object):
 
         self.backButton.clicked.connect(self.backClicked)
         self.sendButton.clicked.connect(self.sendClicked)
+        
+        self.reply = False
 
     def sendClicked(self):
 
         dest = self.destinationField.text()
         dest_list = dest.split(',')
-        # removing eventual initial space:
-        # dest = 'a, b, c, d'
-        # dest.split(',') produces: ['a', ' b', ' c', ' d']
+        # removing eventual empty strings
+        while '' in dest_list:
+            dest_list.remove('')
+        # removing eventual initial space and ending space:
+        # dest = 'a, b, c, d '
+        # dest.split(',') produces: ['a', ' b', ' c', ' d ']
         for i in range(len(dest_list)):
-            if dest_list[i][0] == ' ':
-                dest_list[i] = dest_list[i][1:]
+            item = dest_list[i]
+            dest_list[i] = item.strip()
 
         obj = self.objectField.text()
         body = self.bodyField.toPlainText()
@@ -145,6 +150,7 @@ class SendMessage(object):
         graphicsInput['sender'] =self.username
         graphicsInput['object'] = obj
         graphicsInput['body'] = body
+        graphicsInput['reply'] = self.reply 
 
         send.sendMessage(graphicsInput)
 
@@ -153,8 +159,14 @@ class SendMessage(object):
         self.objectField.setText('')
         self.bodyField.setPlainText('')
         self.destinationField.setText('')
+        self.reply = False
 
     def backClicked(self):
+        # not saving draft
+        self.destinationField.setText('')
+        self.objectField.setText('')
+        self.bodyField.setPlainText('')
+
         self.widgetStack.setCurrentIndex(
                 self.widgetStack.sceneDict[self.backScene])
 
@@ -176,9 +188,18 @@ class SendMessage(object):
         self.label_1.setText(_translate("SendMessage", "From:"))
 
     def replyHandler(self, dict_param):
-        #TODO
-        self.destinationField.setText(dict_param['to'])
+        dest_field = makeStringFromList(dict_param['to'])
+        self.destinationField.setText(dest_field)
         self.objectField.setText(dict_param['object'])
+        self.reply = True
+
+def makeStringFromList(l):
+    s = ''
+    for i in range(len(l) - 1):
+      s += l[i] + ', '
+    s += l[len(l) - 1]
+    return s
+
 
 if __name__ == '__main__':
     main()

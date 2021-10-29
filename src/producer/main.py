@@ -308,6 +308,19 @@ body will be asked interactively):')
 if __name__ == '__main__':
     application_name = sys.argv[0]
 
+    # setting up environ variables:
+    from decouple import config
+    AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = config ('AWS_SECRET_ACCESS_KEY')
+    AWS_SESSION_TOKEN = config('AWS_SESSION_TOKEN')
+    import os
+    os.environ['AWS_ACCESS_KEY_ID'] = AWS_ACCESS_KEY_ID
+    os.environ['AWS_SECRET_ACCESS_KEY'] = AWS_SECRET_ACCESS_KEY
+    os.environ['AWS_SESSION_TOKEN'] = AWS_SESSION_TOKEN 
+
+    
+
+
     if len(sys.argv) == 2: # there are params
         if (sys.argv[1] == '-g'):
             graph.main()
