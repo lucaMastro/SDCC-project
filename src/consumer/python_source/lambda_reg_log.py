@@ -71,9 +71,9 @@ def performeLogin(usr, pw):
     cursor = conn.cursor()
     try:
         #getting pw form db:
-        salt = None
-        args = (usr, salt)
-        cursor.callproc("get_salt", args)
+        args = (usr, '')
+        ret = cursor.callproc("get_salt", args)
+        salt = ret[1]
         # encrypt pw:
         pw = encrypt(pw, salt)
 
