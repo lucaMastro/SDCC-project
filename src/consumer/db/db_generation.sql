@@ -22,7 +22,8 @@ DROP TABLE IF EXISTS `users_db`.`users` ;
 
 CREATE TABLE IF NOT EXISTS `users_db`.`users` (
   `username` VARCHAR(45) NOT NULL,
-  `password` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(64) NOT NULL,
+  `salt` VARCHAR(64) NOT NULL,
   PRIMARY KEY (`username`))
 ENGINE = InnoDB;
 
@@ -37,10 +38,10 @@ DROP procedure IF EXISTS `users_db`.`sign_in`;
 
 DELIMITER $$
 USE `users_db`$$
-CREATE PROCEDURE `sign_in` (in usrname varchar(45), in pass varchar(45))
+CREATE PROCEDURE `sign_in` (in usrname varchar(45), in pass varchar(64), in s varchar(64))
 BEGIN
-	insert into users (username, password)
-    values (usrname, pass);
+	insert into users (username, password, salt)
+    values (usrname, pass, s);
 END$$
 
 DELIMITER ;
@@ -54,9 +55,9 @@ DROP procedure IF EXISTS `users_db`.`log_in`;
 
 DELIMITER $$
 USE `users_db`$$
-CREATE PROCEDURE `log_in` (in usr varchar(45), in pass varchar(45))
+CREATE PROCEDURE `log_in` (in usr varchar(45), in pass varchar(64))
 BEGIN
-	declare pw varchar(45);
+	declare pw varchar(64);
     select password
     from users
     where username = usr
@@ -65,7 +66,7 @@ BEGIN
     if pw is null or pw != pass then
 		signal sqlstate '45999'
 		set message_text = "Error: wrong username or password.";
-    end if;    
+    end if; 
 END$$
 
 DELIMITER ;
@@ -82,6 +83,25 @@ USE `users_db`$$
 CREATE PROCEDURE `get_user_list` ()
 BEGIN
 	select username from users;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure get_salt
+-- -----------------------------------------------------
+
+USE `users_db`;
+DROP procedure IF EXISTS `users_db`.`get_salt`;
+
+DELIMITER $$
+USE `users_db`$$
+CREATE PROCEDURE `get_salt` (in user varchar(45), out slt varchar(64))
+BEGIN
+	select salt 
+    from users
+    where username = user
+    into slt;
 END$$
 
 DELIMITER ;

@@ -7,6 +7,20 @@ import json
 # operation. The user param is None in graphic client, otherwise it's given at
 # function invocation
 
+def genSalt(user):
+    #TODO
+    return 'ab'
+
+def retrieveSalt(user):
+    #TODO
+    dic = dict()
+    dic['salt'] = 'ab'
+    return dic
+
+def crypt(pw, salt):
+    #TODO
+    return pw 
+
 def registrationLogin(operationCode, user=None, pw=None):
     input_params = {}
 
@@ -18,11 +32,14 @@ def registrationLogin(operationCode, user=None, pw=None):
     
     if operationCode == 1:
         operation = 'Registration'
+
     elif operationCode == 2:
         operation = 'Login'
 
-    print('{}.'.format(pw))
-    input()
+    # encryption of pw is done by the lambda function which is addicted to
+    # the registration. This is not a problem because the communication is
+    # based on TLS. We need encryption because we don't wanto to store pw
+    # in clear in db.
     input_params = {}
     input_params['Operation'] = operation 
     input_params['Username'] = user 
