@@ -41,12 +41,12 @@ class Home(object):
         "}")
 
         self.login_button.setObjectName("login_button")
-        self.signin_button = QtWidgets.QPushButton(Home)
-        self.signin_button.setEnabled(True)
-        self.signin_button.setGeometry(QtCore.QRect(210, 320, 300, 30))
-        self.signin_button.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        self.signin_button.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
-        self.signin_button.setStyleSheet("QPushButton\n"
+        self.signup_button = QtWidgets.QPushButton(Home)
+        self.signup_button.setEnabled(True)
+        self.signup_button.setGeometry(QtCore.QRect(210, 320, 300, 30))
+        self.signup_button.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.signup_button.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        self.signup_button.setStyleSheet("QPushButton\n"
 "{\n"
 "    background-color: #b3b1b1;\n"
 "    color: white;\n"
@@ -61,8 +61,8 @@ class Home(object):
 "    border-color: white;\n"
 "    border-width: 2px;\n"
 "}")
-        self.signin_button.setIconSize(QtCore.QSize(20, 20))
-        self.signin_button.setObjectName("signin_button")
+        self.signup_button.setIconSize(QtCore.QSize(20, 20))
+        self.signup_button.setObjectName("signup_button")
         self.label = QtWidgets.QLabel(Home)
         self.label.setGeometry(QtCore.QRect(10, 40, 699, 50))
         self.label.setMaximumSize(QtCore.QSize(16777215, 50))
@@ -101,14 +101,14 @@ class Home(object):
 
         # connecting button to their handler:
         self.login_button.clicked.connect(self.loginClicked)
-        self.signin_button.clicked.connect(self.signinClicked)
+        self.signup_button.clicked.connect(self.signupClicked)
         self.close_button.clicked.connect(self.closeClicked)
 
     def loginClicked(self):
         self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['login'])
 
-    def signinClicked(self):
-        self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['signin'])
+    def signupClicked(self):
+        self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['signup'])
 
     def closeClicked(self):
        sys.exit()
@@ -117,7 +117,7 @@ class Home(object):
         _translate = QtCore.QCoreApplication.translate
         Home.setWindowTitle(_translate("Home", "Home page"))
         self.login_button.setText(_translate("Home", "Log in"))
-        self.signin_button.setText(_translate("Home", "Sign in"))
+        self.signup_button.setText(_translate("Home", "Sign up"))
         self.label.setText(_translate("Home", "Welcome to Graphic support for Client. "))
         self.label_2.setText(_translate("Home", "Please select an operation:"))
         self.close_button.setText(_translate("Home", "Close"))

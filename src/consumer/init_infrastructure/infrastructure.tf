@@ -342,13 +342,13 @@ resource "aws_iam_role_policy_attachment" "manage_del_and_mark_policy_attach_s3_
 # ----------------------------------------------------------
 # Lambda functions
 
-resource "aws_lambda_function" "sign_log_in" {
-   function_name = "sign_log_in"
+resource "aws_lambda_function" "sign_log" {
+   function_name = "sign_log"
 
    s3_bucket = "source-bucket-sdcc-20-21"
    s3_key    = "sources.zip"
 
-   handler = "lambda_reg_log.sign_in_log_in"
+   handler = "lambda_reg_log.sign_up_log_in"
    runtime = "python3.8"
 
    role = aws_iam_role.registration_login_iam_role.arn

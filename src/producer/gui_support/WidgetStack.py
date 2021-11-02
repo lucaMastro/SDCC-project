@@ -14,7 +14,7 @@ import gui_support.support_functions as supp
 class WidgetStack(QtWidgets.QStackedWidget):
 
     sceneDict = {'home' : 0,
-            'signin' : 1,
+            'signup' : 1,
             'login' : 2,
             'loggedHome' : 3,
             'sendMessage' : 4,

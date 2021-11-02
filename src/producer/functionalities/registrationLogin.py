@@ -46,7 +46,7 @@ def registrationLogin(operationCode, user=None, pw=None):
     input_params['Password'] = pw  
     
     client = boto3.client('lambda')
-    response = client.invoke( FunctionName='sign_log_in',
+    response = client.invoke( FunctionName='sign_log',
             InvocationType='RequestResponse',
             LogType='Tail',
             Payload=json.dumps(input_params), )

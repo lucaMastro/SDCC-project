@@ -2,7 +2,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
 QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp, QSpacerItem
 import sys
-from PyQt5.QtCore import pyqtSignal, QObject
 
 import functionalities.getUsrList as usr 
 

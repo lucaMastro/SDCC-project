@@ -30,15 +30,15 @@ ENGINE = InnoDB;
 USE `users_db` ;
 
 -- -----------------------------------------------------
--- procedure sign_in
+-- procedure sign_up
 -- -----------------------------------------------------
 
 USE `users_db`;
-DROP procedure IF EXISTS `users_db`.`sign_in`;
+DROP procedure IF EXISTS `users_db`.`sign_up`;
 
 DELIMITER $$
 USE `users_db`$$
-CREATE PROCEDURE `sign_in` (in usrname varchar(45), in pass varchar(64), in s varchar(64))
+CREATE PROCEDURE `sign_up` (in usrname varchar(45), in pass varchar(64), in s varchar(64))
 BEGIN
 	insert into users (username, password, salt)
     values (usrname, pass, s);

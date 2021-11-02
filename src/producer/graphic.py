@@ -17,7 +17,7 @@ from gui_support.LogIn import LogIn
 from gui_support.ReadMessages import ReadMessages 
 from gui_support.ReadNewMessages import ReadNewMessages 
 from gui_support.SendMessage import SendMessage 
-from gui_support.SignIn import SignIn
+from gui_support.SignUp import SignUp
 
 def main():
 
@@ -27,7 +27,7 @@ def main():
     # class instances:
     home_ui = Home(widgetStack)
     login_ui = LogIn(widgetStack)
-    signin_ui = SignIn(widgetStack)
+    signup_ui = SignUp(widgetStack)
     loggedHome_ui = LoggedUserHome(widgetStack)
     sendMessage_ui = SendMessage(widgetStack)
     readMessages_ui = ReadMessages(widgetStack)
@@ -37,9 +37,9 @@ def main():
     home_ui.setupUi(home)
     widgetStack.addWidget(home)
     
-    signin = QtWidgets.QDialog()
-    signin_ui.setupUi(signin)
-    widgetStack.addWidget(signin)
+    signup = QtWidgets.QDialog()
+    signup_ui.setupUi(signup)
+    widgetStack.addWidget(signup)
 
     login = QtWidgets.QDialog()
     login_ui.setupUi(login, readMessages_ui, 

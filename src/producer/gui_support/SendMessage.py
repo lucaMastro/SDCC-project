@@ -1,7 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets 
 from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
 QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
-from PyQt5.QtCore import pyqtSignal, QObject
 
 import functionalities.sendMessage as send 
 import gui_support.support_functions as supp 

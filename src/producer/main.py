@@ -21,19 +21,19 @@ def exitSelected():
     return 0
 
 def parseUsername(user):
-    invalidChars = [',', ';', '.', ':', '/']
+    invalidChars = [',', ';', '.', ':', '/', "'"]
     for c in invalidChars:
         if c in user:
             return False
     return True 
 
-def signInSelected(operationCode, user=None):
+def signUpSelected(operationCode, user=None):
     
     # parsing user input
     isValid = parseUsername(user)
     if not isValid:
         print('Error: username cannot contain following chars:')
-        print("',', ';', '.', ':', '/'\n")
+        print("',', ';', '.', ':', '/', '''\n")
         return None
 
     # the following invocation returns the lambda function return value. 
@@ -169,7 +169,7 @@ def commandLineParser(user_input, loginDone):
                 print('Error: invalid option.\n')
                 return 1
 
-            signInSelected(1, params[2])
+            signUpSelected(1, params[2])
             return 1
         elif main_command == 'log':
             # log -u <user>
@@ -283,7 +283,7 @@ def showHelp():
     print('\t\t>> exit\n')
 
     print("Before logging in:")
-    print('\tSigning in to the system (note that password will be asked \
+    print('\tSigning up to the system (note that password will be asked \
 interactively):')
     print('\t\t>> reg -u <username_with_wich_signing_up>')
     print('\tLogging in to the system (note that password will be asked \

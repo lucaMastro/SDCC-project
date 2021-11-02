@@ -50,7 +50,7 @@ def performeRegistration(usr, pw):
 
     try:
         args = (usr, pw, salt)
-        cursor.callproc("sign_in", args)
+        cursor.callproc("sign_up", args)
         a = True
     except Exception as e:
         a = str(e) 
@@ -91,7 +91,7 @@ def performeLogin(usr, pw):
         conn.close()
     return a
 
-def sign_in_log_in(event, context):
+def sign_up_log_in(event, context):
     operation = event['Operation']
 
     usr = event['Username']
