@@ -1,0 +1,3 @@
+
+Configure:
+	bash configure.sh
