@@ -1,24 +1,10 @@
 #!/bin/sh
 
-root=`pwd`
-buckets_path=$root/buckets-creator
-infrastructure_path=$root/infrastructure 
-db_path=$root/db 
-src_path=$root/python_source
+root=`pwd`/init_infrastructure
 
-# delete sources:
-cd $src_path 
-echo 'yes' | terraform destroy
-
-# delete buckets:
-cd $buckets_path
+# delete mess-bucket objects:
 aws s3 rm s3://message-bucket-sdcc-20-21 --recursive
-echo 'yes' | terraform destroy 
 
-# delete infrastucture:
-cd $infrastructure_path 
+cd $root 
 echo 'yes' | terraform destroy
 
-# delete database
-cd $db_path 
-echo 'yes' | terraform destroy

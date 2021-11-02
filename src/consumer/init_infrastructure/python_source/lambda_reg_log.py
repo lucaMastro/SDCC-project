@@ -5,15 +5,18 @@ import string
 import hmac
 import hashlib
 
-import host as h
-
 MESSAGE_BUCKET_NAME = "message-bucket-sdcc-20-21"
 
 #---------------------------------------------
 def connectToDb():
     
-     return mysql.connector.connect(
-        host=h.DB_HOST,
+    client = boto3.client('rds')
+    db_identifier = 'sdcc-rds'
+    response = client.describe_db_instances()
+    host =  response['DBInstances'][0]['Endpoint']['Address']
+
+    return mysql.connector.connect(
+        host=host,
         database='users_db',
         user='admin',
         password='sdcc-db-admin')
