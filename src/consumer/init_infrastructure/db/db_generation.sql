@@ -58,6 +58,7 @@ USE `users_db`$$
 CREATE PROCEDURE `log_in` (in usr varchar(45), in pass varchar(64))
 BEGIN
 	declare pw varchar(64);
+    #set pw = null;
     select password
     from users
     where username = usr
@@ -98,10 +99,17 @@ DELIMITER $$
 USE `users_db`$$
 CREATE PROCEDURE `get_salt` (in user varchar(45), out slt varchar(64))
 BEGIN
+	set slt = null;
+    
 	select salt 
     from users
     where username = user
     into slt;
+    
+    if slt is null then
+		signal sqlstate '45999'
+		set message_text = "Error: wrong username or password.";
+    end if; 
 END$$
 
 DELIMITER ;

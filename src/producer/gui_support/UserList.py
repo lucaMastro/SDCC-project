@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets 
 from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
-QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
+QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp, QSpacerItem
 import sys
 from PyQt5.QtCore import pyqtSignal, QObject
 
@@ -25,8 +25,21 @@ class UserList(QWidget):
         # sorting in alpha order
         usersList.sort()
         for i in range(len(usersList)):
-            labelLis.append(QLabel(usersList[i]))
+            curr_label = QLabel(usersList[i]) 
+            curr_label.setFixedHeight(50)
+            labelLis.append(curr_label)
             vLayout.addWidget(labelLis[i])
+        
+        # this block is meant to show lables properly if they are less than 6
+        if len(labelLis) < 6:
+            height = len(labelLis) * 50
+            verticalSpacer = QSpacerItem(0, 
+                    400 - height, 
+                    QtWidgets.QSizePolicy.Fixed,
+                    QtWidgets.QSizePolicy.Expanding)
+            vLayout.addItem(verticalSpacer)
+            
+
         groupBox.setLayout(vLayout)
         scroll = QScrollArea()
         scroll.setWidget(groupBox)
