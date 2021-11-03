@@ -21,8 +21,28 @@ resource "aws_sqs_queue" "send_messages_sqs_queue" {
 # ----------------------------------------------------------
 # roles
 
-resource "aws_iam_role" "registration_login_iam_role" {
-  name = "registration_login_iam_role"
+resource "aws_iam_role" "registration_iam_role" {
+  name = "registration_iam_role"
+
+  assume_role_policy = jsonencode(
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+)
+}
+
+resource "aws_iam_role" "login_iam_role" {
+  name = "login_iam_role"
 
   assume_role_policy = jsonencode(
 {
@@ -263,20 +283,32 @@ resource "aws_iam_policy" "lambda_rds" {
 # policy attachment
 
 
-# reg_log 
+# reg 
 
-resource "aws_iam_role_policy_attachment" "reg_log_policy_log_attach" {
-  role = aws_iam_role.registration_login_iam_role.name
+resource "aws_iam_role_policy_attachment" "reg_policy_log_attach" {
+  role = aws_iam_role.registration_iam_role.name
   policy_arn = aws_iam_policy.lambda_logging.arn
 }
 
-resource "aws_iam_role_policy_attachment" "reg_log_policy_attach_s3_write" {
-  role = aws_iam_role.registration_login_iam_role.name
+resource "aws_iam_role_policy_attachment" "reg_policy_attach_s3_write" {
+  role = aws_iam_role.registration_iam_role.name
   policy_arn = aws_iam_policy.s3_write_policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "reg_log_policy_attach_rds" {
-  role = aws_iam_role.registration_login_iam_role.name
+resource "aws_iam_role_policy_attachment" "reg_policy_attach_rds" {
+  role = aws_iam_role.registration_iam_role.name
+  policy_arn = aws_iam_policy.lambda_rds.arn
+}
+
+# login 
+
+resource "aws_iam_role_policy_attachment" "login_policy_log_attach" {
+  role = aws_iam_role.login_iam_role.name
+  policy_arn = aws_iam_policy.lambda_logging.arn
+}
+
+resource "aws_iam_role_policy_attachment" "login_policy_attach_rds" {
+  role = aws_iam_role.login_iam_role.name
   policy_arn = aws_iam_policy.lambda_rds.arn
 }
 
@@ -342,16 +374,34 @@ resource "aws_iam_role_policy_attachment" "manage_del_and_mark_policy_attach_s3_
 # ----------------------------------------------------------
 # Lambda functions
 
-resource "aws_lambda_function" "sign_log" {
-   function_name = "sign_log"
+resource "aws_lambda_function" "sign_up" {
+   function_name = "sign_up"
 
    s3_bucket = "source-bucket-sdcc-20-21"
    s3_key    = "sources.zip"
 
-   handler = "lambda_reg_log.sign_up_log_in"
+   handler = "lambda_reg.sign_up"
    runtime = "python3.8"
 
-   role = aws_iam_role.registration_login_iam_role.arn
+   source_code_hash = filebase64sha256("sources.zip")
+   role = aws_iam_role.registration_iam_role.arn
+   depends_on = [
+      aws_s3_bucket.source-bucket-sdcc-20-21,
+      aws_s3_bucket_object.object,
+   ]
+}
+
+resource "aws_lambda_function" "log_in" {
+   function_name = "log_in"
+
+   s3_bucket = "source-bucket-sdcc-20-21"
+   s3_key    = "sources.zip"
+
+   handler = "lambda_log.log_in"
+   runtime = "python3.8"
+
+   source_code_hash = filebase64sha256("sources.zip")
+   role = aws_iam_role.login_iam_role.arn
    depends_on = [
       aws_s3_bucket.source-bucket-sdcc-20-21,
       aws_s3_bucket_object.object,
@@ -367,6 +417,7 @@ resource "aws_lambda_function" "users_list" {
    handler = "lambda_users_list.users_list"
    runtime = "python3.8"
 
+   source_code_hash = filebase64sha256("sources.zip")
    role = aws_iam_role.usr_list_iam_role.arn
    depends_on = [
       aws_s3_bucket.source-bucket-sdcc-20-21,
@@ -384,6 +435,7 @@ resource "aws_lambda_function" "read_messages" {
    handler = "lambda_read.read_messages"
    runtime = "python3.8"
 
+   source_code_hash = filebase64sha256("sources.zip")
    role = aws_iam_role.read_message_iam_role.arn
   
    depends_on = [
@@ -401,6 +453,7 @@ resource "aws_lambda_function" "send_message" {
    handler = "lambda_send.send_message"
    runtime = "python3.8"
 
+   source_code_hash = filebase64sha256("sources.zip")
    role = aws_iam_role.send_message_iam_role.arn
    depends_on = [
       aws_s3_bucket.source-bucket-sdcc-20-21,
@@ -415,9 +468,10 @@ resource "aws_lambda_function" "manage_del_and_mark" {
    s3_bucket = "source-bucket-sdcc-20-21"
    s3_key    = "sources.zip"
 
-   handler = "delete_and_mark.manage_del_and_mark"
+   handler = "lambda_delete_and_mark.manage_del_and_mark"
    runtime = "python3.8"
 
+   source_code_hash = filebase64sha256("sources.zip")
    role = aws_iam_role.manage_del_and_mark.arn
    depends_on = [
       aws_s3_bucket.source-bucket-sdcc-20-21,
@@ -456,7 +510,7 @@ resource "aws_s3_bucket_object" "object" {
   key    = "sources.zip"
   source = "./sources.zip"
 
-  #etag = filemd5("./sources.zip")
+  etag = filemd5("./sources.zip")
   depends_on=[
       aws_s3_bucket.source-bucket-sdcc-20-21,
   ]

@@ -31,22 +31,21 @@ def registrationLogin(operationCode, user=None, pw=None):
         pw = getpass("Give me the password: ", mask='*')
     
     if operationCode == 1:
-        operation = 'Registration'
+        fun_name = 'sign_up'
 
     elif operationCode == 2:
-        operation = 'Login'
+        fun_name = 'log_in'
 
     # encryption of pw is done by the lambda function which is addicted to
     # the registration. This is not a problem because the communication is
     # based on TLS. We need encryption because we don't wanto to store pw
     # in clear in db.
     input_params = {}
-    input_params['Operation'] = operation 
     input_params['Username'] = user 
     input_params['Password'] = pw  
     
     client = boto3.client('lambda')
-    response = client.invoke( FunctionName='sign_log',
+    response = client.invoke( FunctionName=fun_name,
             InvocationType='RequestResponse',
             LogType='Tail',
             Payload=json.dumps(input_params), )
