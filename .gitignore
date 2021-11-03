@@ -7,3 +7,4 @@ utility
 test-env
 *.env
 note
+doc/report
