@@ -1,17 +1,8 @@
 import boto3 
 import mysql.connector 
 
-import host as h
+from db_helper import connectToDb
 
-MESSAGE_BUCKET_NAME = "message-bucket-sdcc-20-21"
-
-def connectToDb():
-    
-     return mysql.connector.connect(
-        host=h.DB_HOST,
-        database='users_db',
-        user='admin',
-        password='sdcc-db-admin')
 
 def users_list(event, context):
     conn = connectToDb()

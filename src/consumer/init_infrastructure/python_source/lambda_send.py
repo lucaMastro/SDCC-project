@@ -1,7 +1,7 @@
 import boto3 
 import Message as msg 
 
-MESSAGE_BUCKET_NAME = "message-bucket-sdcc-20-21"
+from variables import MESSAGE_BUCKET_NAME
 
 def doesFolderExist(path):
     s3 = boto3.resource('s3')

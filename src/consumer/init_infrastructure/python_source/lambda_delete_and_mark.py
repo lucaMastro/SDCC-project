@@ -1,8 +1,8 @@
 import boto3 
 
-MESSAGE_BUCKET_NAME = "message-bucket-sdcc-20-21"
+from variables import MESSAGE_BUCKET_NAME
 
-def manage_del_and_mark(event, context):
+def delete_and_mark(event, context):
     client = boto3.client('s3')
     for key in event:
         if event[key] == 'mark':

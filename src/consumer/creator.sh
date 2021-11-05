@@ -18,6 +18,8 @@ cd $root
 terraform init
 echo 'yes' | terraform apply
 
+# checking if re-init db:
+if [[ "$1" == "-init_db" ]]; then
 # db initialization 
 db_host=`aws rds describe-db-instances --filters "Name=engine,Values=mysql" \
   --query "*[].[Endpoint.Address]"  --output text`
@@ -25,4 +27,5 @@ db_host=`aws rds describe-db-instances --filters "Name=engine,Values=mysql" \
 mysql -h $db_host -P 3306 -u admin \
   --password='sdcc-db-admin' < $db_path/db_generation.sql
 
+fi
 

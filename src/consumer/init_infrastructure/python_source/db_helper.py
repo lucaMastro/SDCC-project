@@ -4,19 +4,20 @@ import hmac
 import hashlib
 import mysql.connector 
 import boto3 
+import variables
 
 def connectToDb():
     
     client = boto3.client('rds')
-    db_identifier = 'sdcc-rds'
+    db_identifier = variables.db_identifier  
     response = client.describe_db_instances()
     host =  response['DBInstances'][0]['Endpoint']['Address']
 
     return mysql.connector.connect(
         host=host,
-        database='users_db',
-        user='admin',
-        password='sdcc-db-admin')
+        database=variables.database,
+        user=variables.user,
+        password=variables.password)
 
 def encrypt(pw, salt):
     h = hmac.new(str.encode(pw), str.encode(salt), hashlib.sha256)

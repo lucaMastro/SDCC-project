@@ -122,8 +122,8 @@ resource "aws_iam_role" "send_message_iam_role" {
 }
 
 
-resource "aws_iam_role" "manage_del_and_mark" {
-  name = "manage_del_and_mark"
+resource "aws_iam_role" "delete_and_mark" {
+  name = "delete_and_mark"
 
   assume_role_policy = jsonencode(
 {
@@ -318,6 +318,10 @@ resource "aws_iam_role_policy_attachment" "usr_list_policy_log_attach" {
   policy_arn = aws_iam_policy.lambda_logging.arn
 }
 
+resource "aws_iam_role_policy_attachment" "usr_list_policy_attach_rds" {
+  role       = aws_iam_role.usr_list_iam_role.name
+  policy_arn = aws_iam_policy.lambda_rds.arn
+}
 
 # read_message 
 
@@ -353,22 +357,22 @@ resource "aws_iam_role_policy_attachment" "send_message_policy_log_attach" {
 }
 
 
-# manage_del_and_mark
+# delete_and_mark
 
-resource "aws_iam_role_policy_attachment" "manage_del_and_mark_log_attach" {
-  role       = aws_iam_role.manage_del_and_mark.name
+resource "aws_iam_role_policy_attachment" "delete_and_mark_log_attach" {
+  role       = aws_iam_role.delete_and_mark.name
   policy_arn = aws_iam_policy.lambda_logging.arn
 }
-resource "aws_iam_role_policy_attachment" "manage_del_and_mark_s3_write" {
-  role       = aws_iam_role.manage_del_and_mark.name
+resource "aws_iam_role_policy_attachment" "delete_and_mark_s3_write" {
+  role       = aws_iam_role.delete_and_mark.name
   policy_arn = aws_iam_policy.s3_write_policy.arn
 }
-resource "aws_iam_role_policy_attachment" "manage_del_and_mark_s3_read" {
-  role       = aws_iam_role.manage_del_and_mark.name
+resource "aws_iam_role_policy_attachment" "delete_and_mark_s3_read" {
+  role       = aws_iam_role.delete_and_mark.name
   policy_arn = aws_iam_policy.s3_read_policy.arn
 }
-resource "aws_iam_role_policy_attachment" "manage_del_and_mark_policy_attach_s3_delete" {
-  role       = aws_iam_role.manage_del_and_mark.name
+resource "aws_iam_role_policy_attachment" "delete_and_mark_policy_attach_s3_delete" {
+  role       = aws_iam_role.delete_and_mark.name
   policy_arn = aws_iam_policy.s3_delete_policy.arn
 }
 # ----------------------------------------------------------
@@ -462,17 +466,17 @@ resource "aws_lambda_function" "send_message" {
 }
 
 
-resource "aws_lambda_function" "manage_del_and_mark" {
-   function_name = "manage_del_and_mark"
+resource "aws_lambda_function" "delete_and_mark" {
+   function_name = "delete_and_mark"
 
    s3_bucket = "source-bucket-sdcc-20-21"
    s3_key    = "sources.zip"
 
-   handler = "lambda_delete_and_mark.manage_del_and_mark"
+   handler = "lambda_delete_and_mark.delete_and_mark"
    runtime = "python3.8"
 
    source_code_hash = filebase64sha256("sources.zip")
-   role = aws_iam_role.manage_del_and_mark.arn
+   role = aws_iam_role.delete_and_mark.arn
    depends_on = [
       aws_s3_bucket.source-bucket-sdcc-20-21,
       aws_s3_bucket_object.object,
