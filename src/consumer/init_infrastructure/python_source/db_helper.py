@@ -4,15 +4,18 @@ import hmac
 import hashlib
 import mysql.connector 
 import boto3 
+#---------------------------------------------
 import variables
+#---------------------------------------------
 
 def connectToDb():
-    
+    # retrieving the rds-db host
     client = boto3.client('rds')
     db_identifier = variables.db_identifier  
     response = client.describe_db_instances()
     host =  response['DBInstances'][0]['Endpoint']['Address']
 
+    # connecting to rds database
     return mysql.connector.connect(
         host=host,
         database=variables.database,

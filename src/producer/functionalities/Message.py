@@ -1,8 +1,3 @@
-"""
-This code is the python class that will be used to represent message
-"""
-
-
 class Message:
 
     #e-mail constructor
@@ -32,5 +27,5 @@ class Message:
     def __str__(self):
         #just return the string which represents the object
 
-        email = "From: " + self.from_ + "\nTo: " + self.to + "\nObject: " + self.object_ + "\nBody: " + self.text + "\n"
-        return email
+        message = "From: " + self.from_ + "\nTo: " + self.to + "\nObject: " + self.object_ + "\nBody: " + self.text + "\n"
+        return message

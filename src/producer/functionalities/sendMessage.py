@@ -1,5 +1,5 @@
 import boto3 
-
+#---------------------------------------------
 
 def getMsgBody():
     lines = ''
@@ -14,6 +14,7 @@ def getMsgBody():
     return lines 
 
 def makeStringFromList(l):
+    # ['a', 'b', 'c'] -> 'a, b, c'
     s = ''
     for i in range(len(l) - 1):
       s += l[i] + ', '
@@ -23,12 +24,13 @@ def makeStringFromList(l):
         
 def sendMessage(params):
     object_ = params['object']
-    receivers = params['receivers']
+    receivers = params['receivers'] #this is a list of string
     sender = params['sender']
 
-    str_list = ''
+    # convert the list into a string: it will be the "To" message attribute of
+    # SQS message and, if it's a reply use case, it will be printed
+    str_list = makeStringFromList(receivers) 
     if params['reply']:
-        str_list = makeStringFromList(receivers)
         print('to: {}'.format(str_list))
         print('object: {}'.format(object_))
 
@@ -37,15 +39,15 @@ def sendMessage(params):
         print('Give me message text (to stop input, insert a blank line):')
         text = getMsgBody() 
         
+    # message SQS body cannot be an empty string
     if text == '':
         text = ' '
 
+    # getting sqs queue
     sqs = boto3.resource('sqs')
     queue = sqs.get_queue_by_name(QueueName='send_messages_sqs_queue')
 
-    if str_list == '':
-        str_list = makeStringFromList(receivers)    
-
+    # for each receiver send a copy of the message
     for rec in receivers:
         queue.send_message(MessageBody = text, MessageAttributes = {
             # attributes for Message() fields
@@ -54,16 +56,15 @@ def sendMessage(params):
                 'DataType' : 'String'
                 },
             'To' : {
-                'StringValue' : str_list,
+                'StringValue' : str_list, #all the listed users
                 'DataType' : 'String'
                 },
             'Object' : {
                 'StringValue' : object_,
                 'DataType' : 'String'
                 },
-            # folder name:
             'Folder' : {
-                'StringValue' : rec,
+                'StringValue' : rec, #current receiver
                 'DataType' : 'String'
                 }
             })

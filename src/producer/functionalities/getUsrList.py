@@ -1,5 +1,6 @@
 import boto3 
 import json
+#---------------------------------------------
 
 def getUsrList():
 
@@ -16,5 +17,7 @@ def getUsrList():
     l = payload.strip('][').split(', ')
     res = []
     for i in l:
-        res.append(i.strip('""'))
+        # removing " from user_names: the l list is now:
+        # ['"usr1"', '"usr2"' ...]
+        res.append(i.strip('"'))
     return res

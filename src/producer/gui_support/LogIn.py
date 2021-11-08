@@ -120,14 +120,7 @@ class LogIn(QObject):
         pw = self.passwordField.text()
 
         # removing eventual initial space from usr 
-        startIndex = 0
-        for i in range(len(usr)):
-            if usr[i] == ' ':
-                startIndex += 1
-            else:
-                # no other space admitted
-                break
-        usr = usr[startIndex:]
+        usr = usr.strip()
 
         # call login func and if else for checking login resul
 

@@ -1,5 +1,4 @@
-#............................................................
-# Imports
+#---------------------------------------------
 from decouple import config
 import os
 import sys
@@ -7,114 +6,117 @@ import functionalities.getUsrList as usr
 import functionalities.readMessages as read 
 import functionalities.registrationLogin as regLog 
 import functionalities.sendMessage as send 
-import graphic as graph
-
-#............................................................
+import graphic 
+#---------------------------------------------
 # Global variables
-
 username = ''
 application_name = ''
+loginDone = False
+#---------------------------------------------
+# return codes
+exit_code = 1
+#---------------------------------------------
 
-#............................................................
 
-
-def exitSelected():
-    return 0
-
-def parseUsername(user):
+def isUsernameValid(user):
+    # this function prevent an username to have the following chars: the
+    # sign-up will be aborted
     invalidChars = [',', ';', '.', ':', '/', "'"]
     for c in invalidChars:
         if c in user:
             return False
     return True 
 
-def signUpSelected(operationCode, user=None):
-    
+def signUpSelected(user=None):
+    # the sign-up code is 1: it's needed because registration and login are
+    # performed by the same client function
+    sign_up_code = 1
+
     # parsing user input
-    isValid = parseUsername(user)
+    isValid = isUsernameValid(user)
     if not isValid:
         print('Error: username cannot contain following chars:')
         print("',', ';', '.', ':', '/', '''\n")
-        return None
-
-    # the following invocation returns the lambda function return value. 
-    # It's a String value:
-    #   'true' stands for registration done
-    #   The error message of the lamda's invocation
-    lambda_response = regLog.registrationLogin(operationCode, user)
-
-    if lambda_response == 'true': 
-        print('Success.\n')
-        return 1
     else:
-        print('Error: {}\n'.format(lambda_response))
-        return None
+        # the following invocation returns the lambda function return value. 
+        # It's a String value:
+        #   - 'true', that stands for registration done
+        #   - The error message of the lamda's invocation
+        lambda_response = regLog.registrationLogin(sign_up_code, user)
+        if lambda_response == 'true': 
+            print('Success.\n')
+        else:
+            print('Error: {}\n'.format(lambda_response))
 
-def loginSelected(operationCode, user=None):
+
+def loginSelected(user=None):
     global username
-    
-    lambda_response = regLog.registrationLogin(operationCode, user)
+    global loginDone 
 
+    # the log-in code is 2: it's needed because registration and login are
+    # performed by the same client function
+    log_in_code = 2
+
+    # invoke lambda function and check result
+    lambda_response = regLog.registrationLogin(log_in_code, user)
     if lambda_response == 'true': 
         print('Success.\n')
         username = user
-        return 2
+        loginDone = True
     else:
         print('Error: {}\n'.format(lambda_response))
-        return None
 
 
 def getUsersList():
+    # invoke lambda function 
     l = usr.getUsrList()
     print(l, '\n')
-    return 1
 
 def readAllMessages():
     global username
     read.getMessages(username) 
-    return 2
 
 def readNewMessages():
     global username
     read.getMessages(username, False) 
-    return 3
 
 def sendMessage(params):
     send.sendMessage(params)
-    return 4
 
 def clear():
     print(chr(27)+'[2j')
     print('\033c')
     print('\x1bc')
     
+
 def commandLineClient():
+    global loginDone
+    global username
+
     print()
-    
-    check = -1
-    loginDone = False
     base_prompt = '>> '
 
-    while check != 0:
+    while True:
         if (loginDone):
             prompt = 'user: {} '.format(username) + base_prompt
         else:
             prompt = base_prompt
 
-        usr_input = input(prompt)
-        
-        # parsing the input. the second param is needed because if login has
-        # been done, user cannot performe a registration or login anymore,
-        # otherwise it cannot performe a send, read or get the users list
-        check = commandLineParser(usr_input, loginDone)
-        if not loginDone and check == 2:
-            loginDone = True
+        # getting command
+        cmd = input(prompt)
+        # parsing the input. 
+        check = commandLineParser(cmd, loginDone)
+        if check == exit_code:
+            break
     return 
 
 
 
-def commandLineParser(user_input, loginDone):
-    tmp_params = user_input.split(' ')
+def commandLineParser(cmd, loginDone):
+    global username
+    
+    # from a string to a list of [cmd, param_1, ..., param_n]
+    tmp_params = cmd.split(' ')
     params = []
     for i in tmp_params:
         params += i.split(',')
@@ -122,111 +124,115 @@ def commandLineParser(user_input, loginDone):
         params.remove('')
 
     if len(params) == 0:
-        # just show a new line
+        # just show a new line: no cmd given
         return 
+
     # first element is the cmd to execute
     main_command = params[0]
 
     # checking if it's a clear, help or exit command. Same behaviour in any
     # case for these commands:
-
     if main_command == 'exit':
-        # checking for no params:
+        # checking for no other params:
         if len(params) != 1:
-            print('Error: too mach params.\n')
-            return 1
+            print('Error: too much params.\n')
+            return 
         else:
-            return exitSelected()
+            return exit_code 
 
     elif main_command == 'clear':
         # checking for no params:
-        if len(params) != 1:
-            print('Error: too mach params.\n')
-            return 1
+        if len(params) == 1:
+            clear()
         else:
-            return clear()
+            print('Error: too much params.\n')
+        return
 
     elif main_command == 'help':
         # checking for no params:
-        if len(params) != 1:
-            print('Error: too mach params.\n')
-            return 1
+        if len(params) == 1:
+            showHelp()
         else:
-            return showHelp()
+            print('Error: too much params.\n')
+        return 
 
 
     if not loginDone:
-        # only clear, exit, reg, log will be accepted:
-
+        # only reg, log will be accepted:
         # parsing main cmd: 
         if main_command == 'reg':
             # reg -u <user>
-            if len(params) != 3:
-                print('Error: you have to specify user.\n')
-                return 1
+            if len(params) > 3:
+                print('Error: too much arguments.\n')
+                return 
+            elif len(params) < 3:
+                print('Error: too few arguments.\n')
+                return 
 
             if params[1] != '-u':
                 print('Error: invalid option.\n')
-                return 1
+                return 
+            signUpSelected(params[2])
+            return 
 
-            signUpSelected(1, params[2])
-            return 1
         elif main_command == 'log':
             # log -u <user>
-            if len(params) != 3:
-                print('Error: you have to specify user.\n')
-                return 1
+            if len(params) > 3:
+                print('Error: too much arguments.\n')
+                return 
+            elif len(params) < 3:
+                print('Error: too few arguments.\n')
+                return 
 
             if params[1] != '-u':
                 print('Error: invalid option.\n')
-                return 1
-
-            return loginSelected(2, params[2])
+                return
+            loginSelected(params[2])
+            return 
         else: 
             print('Error: command not found.\n')
-    # login Done. usr list, send and read (all and new) accepted
+
     else:
+    # login Done == True. usr list, send and read (all and new) accepted
         if main_command == 'usr_list':
             # usr_list
-            if len(params) != 1:
-                print('Error: too mach params.\n')
-                return 1
-
-            return getUsersList() 
+            if len(params) == 1:
+                getUsersList()
+            else:
+                print('Error: too much params.\n')
+            return  
 
         elif main_command == 'read':
             # read      or      read -n
-
             if len(params) == 1: # only the read command
                 readAllMessages()
-                return 
-            elif len(params) > 2: # the name and 2 or more params
+            elif len(params) > 2: 
                 print('Error: too much argument.\n')
-                return 2
-            # we have a param. check if it's the -n
-            if params[1] != '-n':
-                print('Error: invalid option.\n')
-                return 2
             else:
-                readNewMessages()
-                return
+                # len(params) == 2
+                # we have a param. check if it's the -n
+                if params[1] != '-n':
+                    print('Error: invalid option.\n')
+                else:
+                    readNewMessages()
+            return
 
         elif main_command == 'send':
             # send -u <user1>, <user2>,<user3> .. <user_n> -o <object>
-            if len(params) < 3:
+            if len(params) < 5:
+                # send -t <user> -o <object>
                 print('Error: no user given.\n')
-                return 4
+                return 
 
             if params[1] != '-t':
                 print('Error: invalid option.\n')
-                return 4
+                return 
             
             usr_list = []
+            # checking for -o while scan the list of destination
             oOptionFound = False 
             for i in range(2, len(params)):
-                curr = params[i]
-                if curr.endswith(','):
-                    curr = curr[:-1]
+                curr = params[i].strip(',')
                 if (curr == '-o'):
                     oOptionFound = True
                     break
@@ -234,38 +240,44 @@ def commandLineParser(user_input, loginDone):
 
             # checking if cycle ends because of break or just because the
             # params are finished. In this case, the -o option is missing
-
             if not oOptionFound:
                 print('Error: missing -o option for object.\n')
-                return 4
+                return 
+
             # checking if params is correctly len size:
-            # if everything was correct, now we have i that is the -o index,
-            # then just check if the i+1-th element of param exists:
-            #
+            # if everything was correct, now we have i that is the -o index.
+            # the last element of the params is in the len(params) - 1.
+            # Then, if i + 1 == len(params) means that -o was the last element
+            # of params list
             if i + 1 == len(params):
                 print('Error: missing object.\n')
-                return 4
+                return 
+            
+            # getting object
             obj_ = params[i + 1]
+            # if there are other params in the list, then the object has space.
+            # recostruction of the object
             for j in range(i + 2, len(params)):
                 obj_ += ' ' + params[j]
 
+            # preparing lambda invocation
             lambdaParams = {}
             lambdaParams['receivers'] = usr_list
-            #lambdaParams['object'] = params[i + 1]
             lambdaParams['object'] = obj_
             lambdaParams['body'] = None
-            global username
-            lambdaParams['sender'] = username
+            lambdaParams['sender'] = username   #global
             lambdaParams['reply'] = False
             sendMessage(lambdaParams)
-            return 2
+            return 
         else: 
+            # undefined main_cmd
             print('Error: command not found.\n')
 
     return 
 
 
 def showHelp():
+    # this is just a print function
     print('Command Line application works with the following:\n')
 
     print("From command shell:")
@@ -300,12 +312,12 @@ interactively):')
     print('\tSending a messages to one or more users (note that message \
 body will be asked interactively):')
     print('\t\t>> send -t <dest1> <dest2> ... <dest_n> -o <object> \n')
-    return 
 
 
 if __name__ == '__main__':
     application_name = sys.argv[0]
 
+    # checking how to retrieve credentials
     if not config('use_credentials_file', default=True, cast=bool):
         # setting up environ variables:
         AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
@@ -315,16 +327,20 @@ if __name__ == '__main__':
         os.environ['AWS_SECRET_ACCESS_KEY'] = AWS_SECRET_ACCESS_KEY
         os.environ['AWS_SESSION_TOKEN'] = AWS_SESSION_TOKEN 
 
-    if len(sys.argv) == 2: # there are params
+    if len(sys.argv) > 2:
+        print('Too much params.\n')
+
+    elif len(sys.argv) == 2: 
+        # there are params: the only valid optios are '-g' and '-h'
+        
         if (sys.argv[1] == '-g'):
-            graph.main()
-            #graphicClient()  
+            # GUI mode
+            graphic.main()
+
         if (sys.argv[1] == '-h'):
             showHelp()
         else: 
             print('Invalid params.\n')
-            showHelp()
-        
     else:
         commandLineClient()
 

@@ -3,13 +3,13 @@ from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
 QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
 import sys
 from PyQt5.QtCore import pyqtSignal, QObject
-
+#---------------------------------------------
 import functionalities.getUsrList as usr 
 import functionalities.readMessages as read 
 import functionalities.registrationLogin as regLog 
 import functionalities.sendMessage as send 
 import functionalities.Message as mess
-
+#---------------------------------------------
 from gui_support.WidgetStack import WidgetStack 
 from gui_support.Home import Home
 from gui_support.LoggedUserHome import LoggedUserHome 
@@ -18,6 +18,7 @@ from gui_support.ReadMessages import ReadMessages
 from gui_support.ReadNewMessages import ReadNewMessages 
 from gui_support.SendMessage import SendMessage 
 from gui_support.SignUp import SignUp
+#---------------------------------------------
 
 def main():
 
@@ -67,11 +68,4 @@ def main():
     widgetStack.setWindowTitle('Graphic client')
     widgetStack.show()
 
-    #global username
-    #username = 'a'
-    #widgetStack.setCurrentIndex(widgetStack.sceneDict['readMessages'])
-
     sys.exit(app.exec_())
-
-if __name__ == '__main__':
-    main()

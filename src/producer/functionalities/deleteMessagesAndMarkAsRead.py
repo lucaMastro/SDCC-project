@@ -1,5 +1,6 @@
 import boto3
 import json
+#---------------------------------------------
 
 def manageDelAndMark(inputDict):
     client = boto3.client('lambda')
@@ -7,4 +8,3 @@ def manageDelAndMark(inputDict):
                 InvocationType='RequestResponse',
                 LogType='Tail',
                 Payload=json.dumps(inputDict))
-    

@@ -4,15 +4,19 @@ import ast
 import signal
 import sys 
 from functools import partial
-
+#---------------------------------------------
 import functionalities.deleteMessagesAndMarkAsRead as delAndMark
 import functionalities.Message as mess 
 import gui_support.support_functions as supp 
 import functionalities.sendMessage as send 
+#---------------------------------------------
 
 messagesList = []
 
-# class for manage use case: it's a subclass of Message
+# class for manage use case
+#---------------------------------------------
+# this is a subclass of Message
+#
 class ToDisplayMessage(mess.Message):
     deleted = False
     read = False 
@@ -73,17 +77,21 @@ class MessageList():
         s += str(self[len(self) - 1]) + ']'
         return s
 
+#---------------------------------------------
 
+# this function invokes lambda function
 def getMessages(username, all_ = True, graphic=False):
-    
     global messagesList 
 
     messagesList = MessageList() 
 
-    client = boto3.client('lambda')
+    # prepare invocation
     input_params = {}
     input_params['All'] = all_ 
     input_params['Username'] = username
+
+    # invoke and convert result
+    client = boto3.client('lambda')
     response = client.invoke( FunctionName='read_messages',
             InvocationType='RequestResponse',
             LogType='Tail',
@@ -92,37 +100,46 @@ def getMessages(username, all_ = True, graphic=False):
     strPayload = response['Payload'].read().decode('utf-8')
     payload = ast.literal_eval(strPayload)
 
-    # filling messagesList with the bodies
+    # filling messagesList with the bodies of returned mess
     i = 0
     for keyIndex in payload.keys():
-        msgStr = payload[keyIndex]['message']
         
+        # getting returned information for all returned message
+        #
+        # isNew
         if payload[keyIndex]['new'] == 'True':
             isNew = True
         else:
             isNew = False 
 
+        # key: s3 name
         key = payload[keyIndex]['key']
 
+        # the string representing the message
+        msgStr = payload[keyIndex]['message']
+
+        # add a new ToDisplayMessage into the list
         messagesList.append(ToDisplayMessage(msgStr, i, key, isNew))
         i += 1
-        #messagesList.append(payload[key]['message'])
 
+    # for CLI client, the messageList must be shown
     if not graphic:
         showMessages(username, all_)
         
 
-# CLI read-messages support
 def showMessages(username, all_):
     global messagesList
 
-    # command line changing handler for ctrl +c: in this way, even if a ctrl+c
-    # is execute, the changes will be sent to aws
-    # this is needed to restore default status
+    # command line changing handler for ctrl+c: in this way, even if a sigint
+    # occurs, the changes will be sent to aws.
+    # 
+    # storing the default behaviour: later the handler will be set at the
+    # default
     default_handler = signal.getsignal(signal.SIGINT)
     # changing handler:
     signal.signal(signal.SIGINT, partial(signalHandler, False))
     
+    # no message case:
     s = "You don't have any " 
     if (len(messagesList) == 0):
         if not all_:
@@ -136,22 +153,29 @@ def showMessages(username, all_):
     else:
         print("You have {} new messages to display.".format(len(messagesList)))
     
+    # current is the index of the last message shown
     current = 0
     while current < len(messagesList):
+        # print a message separator
         print('-' * 60)
+        # printing message's attributes
         print('index: {}\tNew: {}\n'.format(current + 1,
             messagesList[current].isNew))
+        # printing the message
         print('.' * 30)
         print(messagesList[current])
         print('.' * 30)
 
+        # save that message has been read
         messagesList[current].read = True 
 
+        # getting usr cmd
         print('Give me a command:')
         print('c = show next, b = break, d = delete this message, j <n>' +
         ' = show n-th message, r [<-a>] = reply [to all]\n')
         cmd = input('user: {} - read >> '.format(username))
 
+        # parsing cmd:
         if cmd == 'c':
             current += 1
         elif cmd == 'b':
@@ -159,79 +183,98 @@ def showMessages(username, all_):
             break
         elif cmd == 'd':
             messagesList.delete(current)
-            # not increment: the current-th message is changed
-            #current += 1
+            # current is not incremented: the current-th message is changed
         else:
-            # expecting a j n command
+            # expecting a "j n" or a "r [-a]" command 
             params = cmd.split(' ')
             while '' in params:
                 params.remove('')
 
+            if len(params) > 2:
+                print('Error: too much params.\n')
+                continue
+
             # reply case. may have argument
             if params[0] == 'r':
+                curr_message = messagesList[current]
+                dict_param = dict()
+
+                # reply -all case
                 if len(params) == 2:
-                    dict_param = dict()
-                    # reply all case:
-                    if params[1] == '-a':
-                        curr_message = messagesList[current]
+                    if params[1] != '-a':
+                        print('Error: invalid params.\n')
+                        continue
+                    else:
+                        # getting the To field of message. it's a string like
+                        # the following:
+                        # 'usr1, usr2, ...'
                         old_receivers = curr_message.to
+
+                        # getting a list type:
                         new_receivers = old_receivers.split(', ')
-                        # deleting me from the receivers list
+
+                        # deleting this user from the receivers list
                         new_receivers.remove(username)
-                        # adding sender:
+
+                        # adding sender to the new receivers list:
                         if curr_message.from_ not in new_receivers:
                             new_receivers.append(curr_message.from_)
-
+                        
+                        # prepare lambda_send invocation:
                         dict_param['receivers'] = new_receivers 
                         dict_param['object'] = 'RE: ' + curr_message.object_ 
                         dict_param['sender'] = username 
                         dict_param['reply'] = True
                         dict_param['body'] = None
-                        # updating status
-                        prepareAndInvokeDelete()
-                        # starting send:
-                        send.sendMessage(dict_param)
-                        continue 
-                    else:
-                        print('Error: invalid params.\n')
-                        continue
 
                 elif len(params) == 1:
-                    curr_message = messagesList[current]
-                    dict_param = dict()
-                    # reply case:
+                    # reply to the only sender case:
                     dict_param['receivers'] = [curr_message.from_]
                     dict_param['object'] = 'RE: ' + curr_message.object_ 
                     dict_param['sender'] = username 
                     dict_param['reply'] = True
                     dict_param['body'] = None
-                    # updating status
-                    prepareAndInvokeDelete()
-                    # starting send:
-                    print() # printing a new-line
-                    send.sendMessage(dict_param)
-                    continue 
 
-                else:
-                    print('Error: invalid params.\n')
+                else: #len(params) > 2
+                    print('Error: too much params.\n')
                     continue
 
-            if len(params) != 2 or params[0] != 'j':
+                # starting send:
+                print() # printing a new-line
+                send.sendMessage(dict_param)
+
+            elif params[0] == 'j':
+
+                # this case needs exactly 1 param other the 'j' cmd
+                if len(params) > 2:
+                    print('Error: too much params.\n')
+                    continue
+                if len(params) < 2:
+                    print('Error: too few params.\n')
+                    continue
+                
+                # try to cast the given value
+                try:
+                    n = int(params[1])
+                except:
+                    print("Second param should be an integer.\n")
+                    continue
+
+                # cannot show a message whose index is bigger than the list
+                if n > len(messagesList):
+                    print("You only have {} messages.\n".format(len(messagesList)))
+                    continue
+                
+                # n-th mess is in n-1 position
+                current = n - 1
+
+            else:
+                # params[0] != 'r' and params[0] != 'j'
                 print('Invalid input.\n')
                 continue
-
-            try:
-                n = int(params[1])
-            except:
-                print("Second param should be an integer.\n")
-                continue
-
-            if n > len(messagesList):
-                print("You only have {} messages.\n".format(len(messagesList)))
-                continue
-            
-            # n-th mess is in n-1 position
-            current = n - 1
+        
+        #end params[0] switch
+    # end-cycle
 
     # all messages have ben read
     if current == len(messagesList):
@@ -272,24 +315,3 @@ def prepareAndInvokeDelete():
             inputDict[key] = 'del'
         
         delAndMark.manageDelAndMark(inputDict)
-
-if __name__ == '__main__':
-    #payload = '["From: luca\nTo: luca\nObject: test2\nBody: provaprova\n\n", "From: luca\nTo: luca\nObject: asd\nBody: prova\n\n"]'
-    #print(payload)
-    
-    # testing not graphic case
-    
-    # reporting to list:
-    # suppoose to have it
-    #
-    # interactive shell
-#    payloadList = ["From: luca\nTo: luca\nObject: test2\nBody: provaprova\n\n", "From: luca\nTo: luca\nObject: asd\nBody: prova\n\n"]
-
- #   if (len(payloadList) == 0):
-  #      print("You don't have any message to display.")
-   # else:
-    #    endIndex = showMessages(payloadList)
-    
-   # if endIndex == len(payloadList):
-    #    print("You don't have other messages.")
-    print(getMessages('luca'))

@@ -1,16 +1,21 @@
 import boto3 
 import mysql.connector 
-
+#---------------------------------------------
 from db_helper import connectToDb
+#---------------------------------------------
 
 
 def users_list(event, context):
+    # opening connection to rds db
     conn = connectToDb()
     conn._open_connection()
-    
+
     cursor = conn.cursor()
     try:
+        # calling store procedure
         cursor.callproc("get_user_list")
+
+        # creating the list
         l = []
         for result in cursor.stored_results():
             tmp = result.fetchall()
@@ -18,7 +23,7 @@ def users_list(event, context):
                 l.append(usr[0])
 
     except Exception as e:
-        l = None
+        l = str(e)
         # for logging 
         print('The exception is: ', str(e))
     finally:
