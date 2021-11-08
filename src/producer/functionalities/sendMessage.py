@@ -67,12 +67,5 @@ def sendMessage(params):
                 'DataType' : 'String'
                 }
             })
+    print('Message(s) sent.\n')
 
-if __name__ == '__main__':
-    p = {}
-    p['receivers'] = ['luca', 'asd']
-    p['object'] = 'prova' 
-    p['body'] = 'test' 
-    p['sender'] = 'luca'
-
-    sendMessage(p)

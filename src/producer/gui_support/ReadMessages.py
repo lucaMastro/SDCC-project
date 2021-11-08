@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
 QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
 from PyQt5.QtCore import pyqtSignal, QObject
 
-import pdb
 import sys
 sys.path.append('..')
 import functionalities.readMessages as read 

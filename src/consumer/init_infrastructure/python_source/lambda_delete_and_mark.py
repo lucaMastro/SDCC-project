@@ -14,5 +14,5 @@ def delete_and_mark(event, context):
                             'Value': 'False'
                         }]
                 })
-        else:
+        elif event[key] == 'del':
             client.delete_object(Bucket=MESSAGE_BUCKET_NAME, Key=key)

@@ -7,19 +7,6 @@ import json
 # operation. The user param is None in graphic client, otherwise it's given at
 # function invocation
 
-def genSalt(user):
-    #TODO
-    return 'ab'
-
-def retrieveSalt(user):
-    #TODO
-    dic = dict()
-    dic['salt'] = 'ab'
-    return dic
-
-def crypt(pw, salt):
-    #TODO
-    return pw 
 
 def registrationLogin(operationCode, user=None, pw=None):
     input_params = {}

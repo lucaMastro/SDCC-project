@@ -8,3 +8,4 @@ test-env
 *.env
 note
 doc/report
+doc/howto

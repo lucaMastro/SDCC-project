@@ -1,7 +1,8 @@
 #............................................................
 # Imports
+from decouple import config
+import os
 import sys
-import ast 
 import functionalities.getUsrList as usr 
 import functionalities.readMessages as read 
 import functionalities.registrationLogin as regLog 
@@ -80,7 +81,6 @@ def readNewMessages():
 
 def sendMessage(params):
     send.sendMessage(params)
-    print('Message(s) sent.\n')
     return 4
 
 def clear():
@@ -308,18 +308,14 @@ body will be asked interactively):')
 if __name__ == '__main__':
     application_name = sys.argv[0]
 
-    # setting up environ variables:
-    from decouple import config
-    AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = config ('AWS_SECRET_ACCESS_KEY')
-    AWS_SESSION_TOKEN = config('AWS_SESSION_TOKEN')
-    import os
-    os.environ['AWS_ACCESS_KEY_ID'] = AWS_ACCESS_KEY_ID
-    os.environ['AWS_SECRET_ACCESS_KEY'] = AWS_SECRET_ACCESS_KEY
-    os.environ['AWS_SESSION_TOKEN'] = AWS_SESSION_TOKEN 
-
-    
-
+    if not config('use_credentials_file', default=True, cast=bool):
+        # setting up environ variables:
+        AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = config ('AWS_SECRET_ACCESS_KEY')
+        AWS_SESSION_TOKEN = config('AWS_SESSION_TOKEN')
+        os.environ['AWS_ACCESS_KEY_ID'] = AWS_ACCESS_KEY_ID
+        os.environ['AWS_SECRET_ACCESS_KEY'] = AWS_SECRET_ACCESS_KEY
+        os.environ['AWS_SESSION_TOKEN'] = AWS_SESSION_TOKEN 
 
     if len(sys.argv) == 2: # there are params
         if (sys.argv[1] == '-g'):

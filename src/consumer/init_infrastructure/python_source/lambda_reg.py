@@ -1,9 +1,8 @@
 import boto3 
 import db_helper as helper 
 
-MESSAGE_BUCKET_NAME = "message-bucket-sdcc-20-21"
 
-
+from variables import MESSAGE_BUCKET_NAME
 #---------------------------------------------
 
     
