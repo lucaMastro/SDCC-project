@@ -2,12 +2,14 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
 QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
 from PyQt5.QtCore import pyqtSignal, QObject
-
+#---------------------------------------------
 import sys
 sys.path.append('..')
+#---------------------------------------------
 import functionalities.readMessages as read 
 import functionalities.Message as mess
 import gui_support.support_functions as supp 
+#---------------------------------------------
 
 class ReadMessages(QObject):
     backScene = 'loggedHome'    
@@ -96,7 +98,6 @@ class ReadMessages(QObject):
         self.backButton.setObjectName("backButton")
         self.formLayoutWidget = QtWidgets.QWidget(ReadMessages)
         self.formLayoutWidget.setGeometry(QtCore.QRect(10, 104, 671, 271))
-        #---------------------------------------
         self.formLayoutWidget.setObjectName("formLayoutWidget")
         self.formLayout_2 = QtWidgets.QFormLayout(self.formLayoutWidget)
         self.formLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -136,18 +137,12 @@ class ReadMessages(QObject):
         self.label_7.setMaximumSize(QtCore.QSize(16777215, 50))
         self.label_7.setObjectName("label_7")
         self.formLayout_2.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.label_7)
-        #---------------------------------------
         self.spinBox = QtWidgets.QSpinBox(ReadMessages)
         self.spinBox.setGeometry(QtCore.QRect(139, 390, 52, 30))
         self.spinBox.setSizeIncrement(QtCore.QSize(0, 0))
         self.spinBox.setObjectName("spinBox")
-
-
-
         self.deleteButton = QtWidgets.QPushButton(ReadMessages)
         self.deleteButton.setGeometry(QtCore.QRect(514, 390, 50, 30))
-        #self.deleteButton.setToolTip("Delete this message")
-        #self.deleteButton.setToolTipDuration(-1)
         self.deleteButton.setStyleSheet("QPushButton\n"
  "{\n"
  "    background-color: #10151f;\n"
@@ -184,7 +179,6 @@ class ReadMessages(QObject):
 "")
         self.newButtonLabel.setVisible(False)
         self.newButtonLabel.setObjectName("newButtonLabel")
-
         self.spinBox.setMinimum(1)
 
         self.retranslateUi(ReadMessages)
@@ -196,16 +190,35 @@ class ReadMessages(QObject):
         self.replyAllButton.clicked.connect(self.replyAllClicked)
         self.deleteButton.clicked.connect(self.deleteClicked)
 
+        # connecting signal
         self.replySignal.connect(SendMessage.replyHandler)
         # conencting spinbox on change value:
         self.spinBox.valueChanged.connect(self.jumpMessage)
- 
+
+    def retranslateUi(self, ReadMessages):
+        _translate = QtCore.QCoreApplication.translate
+        ReadMessages.setWindowTitle(_translate("ReadMessages", "Read messages page"))
+        self.replyButton.setText(_translate("ReadMessages", "Reply"))
+        self.replyAllButton.setText(_translate("ReadMessages", "Reply All"))
+        self.label_3.setText(_translate("ReadMessages", "Read messages"))
+        self.label_7.setText(_translate("ReadMessages", "Message body:"))
+        self.label_2.setText(_translate("ReadMessages", "From:"))
+        self.label_4.setText(_translate("ReadMessages", "Object:"))
+        self.label.setText(_translate("ReadMessages", "To:"))
+        self.newButtonLabel.setText(_translate("ReadMessages", "New!"))
+#---------------------------------------------
+# defining same operation of the CLI read use-case
+
     def replyClicked(self):
         dict_param = dict()
         dict_param['to'] = [self.fromField.text()]
         dict_param['object'] = 'RE: ' + self.objectField.text()
-        # updating status
-        self.deleteAndMark()
+      
+        # updating status. here it's needed because the gui doesnt return on
+        # this page, but send page is kept.
+        read.prepareAndInvokeDelete()
+
+        # passing params
         self.replySignal.emit(dict_param)
         self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['sendMessage'])
         return
@@ -223,8 +236,10 @@ class ReadMessages(QObject):
 
         dict_param['to'] = new_receivers
         dict_param['object'] = 'RE: ' + self.objectField.text()
+
         # updating status
-        self.deleteAndMark()
+        read.prepareAndInvokeDelete()
+
         self.replySignal.emit(dict_param)
         self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['sendMessage'])
         return
@@ -235,6 +250,8 @@ class ReadMessages(QObject):
         self.objectField.setText('')
         self.bodyField.setPlainText('')
         self.toField.setText('')
+
+        # retrieving messages
         read.getMessages(self.username,graphic=True)
 
         if len(read.messagesList) == 0:
@@ -250,15 +267,17 @@ class ReadMessages(QObject):
 
     def jumpMessage(self, n):
         if n == 0:
-            # updating spin box value to 0 means there was a mess which has
+            # updating spin box value to 0 means there was a message which has
             # been deleted
             return
         self.toDisplayIndex = n - 1
-        self.toDisplayIndex %= len(read.messagesList)
+        # some message can be delete. Then the max of spin box should be
+        # updated
         self.spinBox.setMaximum(len(read.messagesList))
         self.showMessage()
 
     def showMessage(self):
+        # setting up gui labels
         toDisplayMessage = read.messagesList[self.toDisplayIndex]
         self.fromField.setText(toDisplayMessage.from_)
         self.objectField.setText(toDisplayMessage.object_)
@@ -271,17 +290,20 @@ class ReadMessages(QObject):
 
 
     def deleteClicked(self):
+        # mark the message as deleted
         read.messagesList.delete(self.toDisplayIndex)
 
         if len(read.messagesList) != 0:
             if self.toDisplayIndex == len(read.messagesList):
                 # this means i've just deleted the last element
-                # showing the 'new' last element by modifyin the spinbox.max
+                # showing the 'new' last element by modifying the spinbox.max
                 self.spinBox.setMaximum(self.toDisplayIndex)
             else:
-                # otherwise keep showing n-th
+                # otherwise i've just deleted the n-th message.
+                # keep showing the 'new' n-th one
                 self.showMessage()
         else:
+            # no other message in the list
             self.fromField.setText('')
             self.objectField.setText('')
             self.bodyField.setPlainText('')
@@ -292,39 +314,12 @@ class ReadMessages(QObject):
                     "You don't have messages anymore", None, False)
 
     def backClicked(self):
-        self.deleteAndMark()
+        # update aws status
+        read.prepareAndInvokeDelete()
+        # showing logged home page
         self.widgetStack.setCurrentIndex(
                 self.widgetStack.sceneDict[self.backScene])
-
-    def deleteAndMark(self):
-        read.prepareAndInvokeDelete()
 
     # when login done, set the username. It's a signal-slot function
     def updateUsername(self, usr):
         self.username = usr
-
-    def retranslateUi(self, ReadMessages):
-        _translate = QtCore.QCoreApplication.translate
-        ReadMessages.setWindowTitle(_translate("ReadMessages", "Read messages page"))
-        self.replyButton.setText(_translate("ReadMessages", "Reply"))
-        self.replyAllButton.setText(_translate("ReadMessages", "Reply All"))
-        self.label_3.setText(_translate("ReadMessages", "Read messages"))
-        self.label_7.setText(_translate("ReadMessages", "Message body:"))
-        self.label_2.setText(_translate("ReadMessages", "From:"))
-        self.label_4.setText(_translate("ReadMessages", "Object:"))
-        self.label.setText(_translate("ReadMessages", "To:"))
-
-        self.newButtonLabel.setText(_translate("ReadMessages", "New!"))
-
-
-def main():
-    app = QtWidgets.QApplication(sys.argv)
-    readMessages = QtWidgets.QDialog()
-    ui = ReadMessages()
-    ui.setupUi(readMessages)
-    readMessages.show()
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()

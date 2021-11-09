@@ -3,8 +3,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
 QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
 import sys
 from PyQt5.QtCore import pyqtSignal, QObject
-
-
+#---------------------------------------------
 
 class Home(object):
     
@@ -12,6 +11,7 @@ class Home(object):
         super().__init__()
         self.widgetStack = WidgetStack
 
+    # gui init
     def setupUi(self, Home):
         Home.setObjectName("Home")
         Home.resize(720, 480)
@@ -104,6 +104,17 @@ class Home(object):
         self.signup_button.clicked.connect(self.signupClicked)
         self.close_button.clicked.connect(self.closeClicked)
 
+    def retranslateUi(self, Home):
+        _translate = QtCore.QCoreApplication.translate
+        Home.setWindowTitle(_translate("Home", "Home page"))
+        self.login_button.setText(_translate("Home", "Log in"))
+        self.signup_button.setText(_translate("Home", "Sign up"))
+        self.label.setText(_translate("Home", "Welcome to Graphic support for Client. "))
+        self.label_2.setText(_translate("Home", "Please select an operation:"))
+        self.close_button.setText(_translate("Home", "Close"))
+#---------------------------------------------
+# button handlers
+
     def loginClicked(self):
         self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['login'])
 
@@ -113,15 +124,3 @@ class Home(object):
     def closeClicked(self):
        sys.exit()
 
-    def retranslateUi(self, Home):
-        _translate = QtCore.QCoreApplication.translate
-        Home.setWindowTitle(_translate("Home", "Home page"))
-        self.login_button.setText(_translate("Home", "Log in"))
-        self.signup_button.setText(_translate("Home", "Sign up"))
-        self.label.setText(_translate("Home", "Welcome to Graphic support for Client. "))
-        self.label_2.setText(_translate("Home", "Please select an operation:"))
-        self.close_button.setText(_translate("Home", "Close"))
-
-
-if __name__ == '__main__':
-    print('ok')

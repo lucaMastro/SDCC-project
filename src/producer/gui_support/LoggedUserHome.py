@@ -1,17 +1,20 @@
 from PyQt5 import QtCore, QtGui, QtWidgets 
 from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
 QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
+from PyQt5.QtCore import pyqtSignal, QObject
+#---------------------------------------------
 import sys
 sys.path.append('..')
-from PyQt5.QtCore import pyqtSignal, QObject
+#---------------------------------------------
 
 import functionalities.getUsrList as usr 
 import functionalities.readMessages as read 
 import functionalities.sendMessage as send 
 import functionalities.Message as mess
-
 from gui_support.UserList import UserList
+#---------------------------------------------
 
+# this class uses pyqtSignal, then must be a subclass of QObject
 class LoggedUserHome(QObject):
 
     readSignal = pyqtSignal(int)
@@ -21,7 +24,7 @@ class LoggedUserHome(QObject):
         super().__init__()
         self.widgetStack = WidgetStack
 
-
+    # init gui
     def setupUi(self, LoggedUserHome, readMessagesObject=None,
             readNewMessagesObject=None):
 
@@ -167,6 +170,7 @@ class LoggedUserHome(QObject):
         self.retranslateUi(LoggedUserHome)
         QtCore.QMetaObject.connectSlotsByName(LoggedUserHome)
 
+        # connecting buttons
         self.sendMessageButton.clicked.connect(self.sendButtonClicked)
         self.readMessagesButton.clicked.connect(self.readButtonClicked)
         self.readNewMessagesButton.clicked.connect(self.readNewButtonClicked)
@@ -176,29 +180,6 @@ class LoggedUserHome(QObject):
         # connecting signal
         self.readSignal.connect(readMessagesObject.startUseCase)
         self.readNewSignal.connect(readNewMessagesObject.startUseCase)
-
-
-    def sendButtonClicked(self):
-        self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['sendMessage'])
-
-    def readButtonClicked(self):
-        self.readSignal.emit(0)
-        # preparing first message view:
-        self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['readMessages'])
-
-    def readNewButtonClicked(self):
-        self.readNewSignal.emit(0)
-        self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['readNewMessages'])
-
-    def usrListButtonClicked(self):
-        # direct invocation of lambda service, then showing result
-        l = usr.getUsrList()
-        self.dialog = UserList(l)
-        
-
-    def closeButtonClicked(self):
-        sys.exit()
-
 
     def retranslateUi(self, LoggedUserHome):
         _translate = QtCore.QCoreApplication.translate
@@ -210,9 +191,27 @@ class LoggedUserHome(QObject):
         self.sendMessageButton.setText(_translate("LoggedUserHome", "Send Message"))
         self.readMessagesButton.setText(_translate("LoggedUserHome", "Read messages"))
         self.readNewMessagesButton.setText(_translate("LoggedUserHome", "Read new messages"))
+#---------------------------------------------
 
+    def sendButtonClicked(self):
+        self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['sendMessage'])
 
-#----------------------------------------------------------------------------------------------
+    def readButtonClicked(self):
+        # initializing read use case 
+        self.readSignal.emit(0)
+        # cheanging scene
+        self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['readMessages'])
 
-if __name__ == '__main__':
-    print('ok')
+    def readNewButtonClicked(self):
+        # initializing read use case 
+        self.readNewSignal.emit(0)
+        # cheanging scene
+        self.widgetStack.setCurrentIndex(self.widgetStack.sceneDict['readNewMessages'])
+
+    def usrListButtonClicked(self):
+        # direct invocation of lambda service, then showing result
+        l = usr.getUsrList()
+        self.dialog = UserList(l)
+        
+    def closeButtonClicked(self):
+        sys.exit()

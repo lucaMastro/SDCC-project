@@ -1,11 +1,13 @@
 from PyQt5 import QtCore, QtGui, QtWidgets 
 from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
 QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
-import sys
 from PyQt5.QtCore import pyqtSignal, QObject
-
+#---------------------------------------------
+import sys
+#---------------------------------------------
 import functionalities.registrationLogin as regLog 
 import gui_support.support_functions as supp 
+#---------------------------------------------
 
 class SignUp(object):
     backScene = 'home'    
@@ -98,36 +100,9 @@ class SignUp(object):
         self.retranslateUi(Signup)
         QtCore.QMetaObject.connectSlotsByName(Signup)
 
-        
+        # connecting buttons        
         self.signupButton.clicked.connect(self.signupClicked)
         self.backButton.clicked.connect(self.backClicked)
-
-    def signupClicked(self):
-        usr = self.userField.text()
-        pw = self.passwordField.text()
-        # removing eventual initial space from usr 
-        startIndex = 0
-        for i in range(len(usr)):
-            if usr[i] == ' ':
-                startIndex += 1
-        usr = usr[startIndex:]
-
-        # call login func and if else for checking login resul
-        lambda_response = regLog.registrationLogin(1, usr, pw)
-
-        if lambda_response == 'true': 
-            supp.showPopup(self.widgetStack, 'Success!', 'Signup done.', None,
-                    False)
-        else:
-            supp.showPopup(self.widgetStack, 'Error!', 'Something went wrong:', 
-                'Username still present', True)
-
-
-    def backClicked(self):
-        self.userField.setText('')
-        self.passwordField.setText('')
-        self.widgetStack.setCurrentIndex(
-                self.widgetStack.sceneDict[self.backScene])
 
     def retranslateUi(self, Signup):
         _translate = QtCore.QCoreApplication.translate
@@ -137,6 +112,26 @@ class SignUp(object):
         self.label_2.setText(_translate("Signup", "Username:"))
         self.label_4.setText(_translate("Signup", "Password:"))
 
+#---------------------------------------------
 
-if __name__ == '__main__':
-    main()
+    def signupClicked(self):
+        # getting params, removing space from start and end of the user
+        usr = self.userField.text().strip()
+        pw = self.passwordField.text()
+
+        # call login func
+        lambda_response = regLog.registrationLogin(1, usr, pw)
+        if lambda_response == 'true': 
+            supp.showPopup(self.widgetStack, 'Success!', 'Signup done.', None,
+                    False)
+        else:
+            supp.showPopup(self.widgetStack, 'Error!', 'Something went wrong:', 
+                'Username still present', True)
+
+
+    def backClicked(self):
+        # re-initializing labels
+        self.userField.setText('')
+        self.passwordField.setText('')
+        self.widgetStack.setCurrentIndex(
+                self.widgetStack.sceneDict[self.backScene])

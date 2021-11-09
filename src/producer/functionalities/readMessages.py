@@ -226,6 +226,7 @@ def showMessages(username, all_):
                         dict_param['sender'] = username 
                         dict_param['reply'] = True
                         dict_param['body'] = None
+                        dict_param['graphic'] = False
 
                 elif len(params) == 1:
                     # reply to the only sender case:
@@ -234,6 +235,7 @@ def showMessages(username, all_):
                     dict_param['sender'] = username 
                     dict_param['reply'] = True
                     dict_param['body'] = None
+                    dict_param['graphic'] = False
 
                 else: #len(params) > 2
                     print('Error: too much params.\n')
@@ -242,6 +244,7 @@ def showMessages(username, all_):
                 # starting send:
                 print() # printing a new-line
                 send.sendMessage(dict_param)
+                print('Message(s) sent.\n')
 
             elif params[0] == 'j':
 

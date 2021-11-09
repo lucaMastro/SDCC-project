@@ -1,9 +1,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
 QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp, QDialog
+#---------------------------------------------
 import sys
+#---------------------------------------------
 
 def showPopup(parent, title, baseMsg, msg, critical, blocking=True):
+    # this function just create a popup to be shown
     mbox = QMessageBox(parent)
 
     if critical:
@@ -34,8 +37,3 @@ def showPopup(parent, title, baseMsg, msg, critical, blocking=True):
     if not blocking:
         mbox.setWindowModality(QtCore.Qt.NonModal)
     mbox.show()
-
-if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-    showPopup(('title', 'base', 'msg', 0))
-    sys.exit(app.exec_())

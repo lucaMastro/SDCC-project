@@ -267,7 +267,9 @@ def commandLineParser(cmd, loginDone):
             lambdaParams['body'] = None
             lambdaParams['sender'] = username   #global
             lambdaParams['reply'] = False
+            lambdaParams['graphic'] = False
             sendMessage(lambdaParams)
+            print('Message(s) sent.\n')
             return 
         else: 
             # undefined main_cmd

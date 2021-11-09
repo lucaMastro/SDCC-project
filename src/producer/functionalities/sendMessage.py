@@ -30,7 +30,7 @@ def sendMessage(params):
     # convert the list into a string: it will be the "To" message attribute of
     # SQS message and, if it's a reply use case, it will be printed
     str_list = makeStringFromList(receivers) 
-    if params['reply']:
+    if params['reply'] and not params['graphic']:
         print('to: {}'.format(str_list))
         print('object: {}'.format(object_))
 
@@ -68,5 +68,4 @@ def sendMessage(params):
                 'DataType' : 'String'
                 }
             })
-    print('Message(s) sent.\n')
 

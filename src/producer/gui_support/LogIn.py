@@ -2,18 +2,22 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
 QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
 from PyQt5.QtCore import pyqtSignal, QObject
-
+#---------------------------------------------
 import sys
 sys.path.append('..')
+#---------------------------------------------
 import functionalities.registrationLogin as regLog 
 import gui_support.support_functions as supp 
 import ast
+#---------------------------------------------
 
+# this class uses pyqtSignal, then must be a subclass of QObject
 class LogIn(QObject):
     
     loginDoneSignal = pyqtSignal(str)
     backScene = 'home'
 
+#---------------------------------------------
     def __init__(self, WidgetStack=None):
         super().__init__()
         self.widgetStack = WidgetStack
@@ -113,17 +117,33 @@ class LogIn(QObject):
         self.loginDoneSignal.connect(ReadNewMessages.updateUsername)
         self.loginDoneSignal.connect(SendMessage.updateUsername)
 
+    def retranslateUi(self, Login):
+        _translate = QtCore.QCoreApplication.translate
+        Login.setWindowTitle(_translate("Login", "Login page"))
+        self.loginButton.setText(_translate("Login", "Login"))
+        self.label_3.setText(_translate("Login", "Login form"))
+        self.label_2.setText(_translate("Login", "Username:"))
+        self.label_4.setText(_translate("Login", "Password:"))
+
+#---------------------------------------------
+
 
     def loginClicked(self):
-
+        # getting user input
         usr = self.userField.text()
         pw = self.passwordField.text()
+
+        # checking single user inserted:
+        if len(usr.split(' ')) > 1 or len(usr.split(',')) > 1:
+                supp.showPopup(self.widgetStack, 'Error!', 'Something went wrong:',
+                        'Too much users.', True)
+                return
+
 
         # removing eventual initial space from usr 
         usr = usr.strip()
 
-        # call login func and if else for checking login resul
-
+        # call login lambda
         lambda_response = regLog.registrationLogin(2, usr, pw)
 
         if lambda_response == 'true': 
@@ -132,7 +152,8 @@ class LogIn(QObject):
             welcome_label = w.findChild(QLabel, 'welcomeLabel')
             welcome_label.setText('Welcome {}'.format(usr))
 
-            # emit the signal of login done
+            # emit the signal of login done: this make the attribute "username"
+            # of connected class to change
             self.loginDoneSignal.emit(usr)
 
             #update the scene
@@ -142,22 +163,8 @@ class LogIn(QObject):
                     lambda_response, True)
 
     def backClicked(self):
+        # re-init fields
         self.userField.setText('')
         self.passwordField.setText('')
         self.widgetStack.setCurrentIndex(
                 self.widgetStack.sceneDict[self.backScene])
-
-
-
-    def retranslateUi(self, Login):
-        _translate = QtCore.QCoreApplication.translate
-        Login.setWindowTitle(_translate("Login", "Login page"))
-        self.loginButton.setText(_translate("Login", "Login"))
-        self.label_3.setText(_translate("Login", "Login form"))
-        self.label_2.setText(_translate("Login", "Username:"))
-        self.label_4.setText(_translate("Login", "Password:"))
-
-#----------------------------------------------------------------------------------------------
-
-if __name__ == '__main__':
-   print('ok') 

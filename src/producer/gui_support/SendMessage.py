@@ -1,9 +1,10 @@
 from PyQt5 import QtCore, QtGui, QtWidgets 
 from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
 QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
-
+#---------------------------------------------
 import functionalities.sendMessage as send 
 import gui_support.support_functions as supp 
+#---------------------------------------------
 
 class SendMessage(object):
     
@@ -73,7 +74,6 @@ class SendMessage(object):
         self.backButton.setObjectName("backButton")
         self.formLayoutWidget = QtWidgets.QWidget(SendMessage)
         self.formLayoutWidget.setGeometry(QtCore.QRect(10, 104, 691, 271))
-        #-------------------------------------------------
         self.formLayoutWidget.setObjectName("formLayoutWidget")
 
         
@@ -100,7 +100,7 @@ class SendMessage(object):
         self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_1)
         
         self.destinationField = QtWidgets.QLineEdit(self.formLayoutWidget)
-        self.destinationField.setToolTip("You can insert here multiple destiantion: dest1, dest2 ...")
+        self.destinationField.setToolTip("You can insert here multiple destinations: dest1, dest2 ...")
         self.destinationField.setToolTipDuration(-1)
         self.destinationField.setWhatsThis("")
         self.destinationField.setEchoMode(QtWidgets.QLineEdit.Normal)
@@ -118,46 +118,64 @@ class SendMessage(object):
         self.fromField.setObjectName("fromField")
         self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.fromField)
         self.fromField.setReadOnly(True)
-        #-------------------------------------------------
 
         self.retranslateUi(SendMessage)
         QtCore.QMetaObject.connectSlotsByName(SendMessage)
 
+        # connecting button
         self.backButton.clicked.connect(self.backClicked)
         self.sendButton.clicked.connect(self.sendClicked)
         
+        # initialize this boolean to False: generally it's not a reply. When
+        # a reply is clicked, this value will be switched into True
         self.reply = False
 
-    def sendClicked(self):
+    def retranslateUi(self, SendMessage):
+        _translate = QtCore.QCoreApplication.translate
+        SendMessage.setWindowTitle(_translate("SendMessage", "Send message page"))
+        self.sendButton.setText(_translate("SendMessage", "Send"))
+        self.label_3.setText(_translate("SendMessage", "Send message"))
+        self.label_7.setText(_translate("SendMessage", "Message body:"))
+        self.label_2.setText(_translate("SendMessage", "To:"))
+        self.label_4.setText(_translate("SendMessage", "Object:"))
+        self.label_1.setText(_translate("SendMessage", "From:"))
+#---------------------------------------------
 
+    def sendClicked(self):
+        # getting destination field text. it can be a list
         dest = self.destinationField.text()
-        dest_list = dest.split(',')
-        # removing eventual empty strings
+        # separe users, splitting on ',' and on ' '
+        tmp_dest = dest.split(' ')
+        dest_list = []
+        for i in tmp_dest:
+            dest_list += i.split(',')
         while '' in dest_list:
             dest_list.remove('')
-        # removing eventual initial space and ending space:
-        # dest = 'a, b, c, d '
-        # dest.split(',') produces: ['a', ' b', ' c', ' d ']
-        for i in range(len(dest_list)):
-            item = dest_list[i]
-            dest_list[i] = item.strip()
 
         obj = self.objectField.text()
         body = self.bodyField.toPlainText()
-        graphicsInput = {}
+
+        # make dict param
+        graphicsInput = dict()
         graphicsInput['receivers'] = dest_list 
         graphicsInput['sender'] =self.username
         graphicsInput['object'] = obj
         graphicsInput['body'] = body
         graphicsInput['reply'] = self.reply 
+        graphicsInput['graphic'] = True 
 
+        # send
         send.sendMessage(graphicsInput)
 
         supp.showPopup(self.widgetStack, 'Success!', 
             'Message sent successfully', None, False)
+
+        # re-initializing the labels
         self.objectField.setText('')
         self.bodyField.setPlainText('')
         self.destinationField.setText('')
+
+        # re-initializing the reply attribute
         self.reply = False
 
     def backClicked(self):
@@ -175,17 +193,8 @@ class SendMessage(object):
         self.username = usr
         self.fromField.setText(usr)
 
-
-    def retranslateUi(self, SendMessage):
-        _translate = QtCore.QCoreApplication.translate
-        SendMessage.setWindowTitle(_translate("SendMessage", "Send message page"))
-        self.sendButton.setText(_translate("SendMessage", "Send"))
-        self.label_3.setText(_translate("SendMessage", "Send message"))
-        self.label_7.setText(_translate("SendMessage", "Message body:"))
-        self.label_2.setText(_translate("SendMessage", "To:"))
-        self.label_4.setText(_translate("SendMessage", "Object:"))
-        self.label_1.setText(_translate("SendMessage", "From:"))
-
+    # when reply is clicked, the labels of To field and object field shoul be
+    # set. it's a signal slot function
     def replyHandler(self, dict_param):
         dest_field = makeStringFromList(dict_param['to'])
         self.destinationField.setText(dest_field)
@@ -198,7 +207,3 @@ def makeStringFromList(l):
       s += l[i] + ', '
     s += l[len(l) - 1]
     return s
-
-
-if __name__ == '__main__':
-    main()

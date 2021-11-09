@@ -1,18 +1,18 @@
 from PyQt5 import QtCore, QtGui, QtWidgets 
 from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout, \
 QGroupBox, QLabel, QPushButton, QFormLayout, QMessageBox, qApp
-import sys
 from PyQt5.QtCore import pyqtSignal, QObject
+#---------------------------------------------
+import sys
+#---------------------------------------------
 import functionalities.readMessages as read
 import gui_support.support_functions as supp 
-
-
-
-#----------------------------------------------------------------------------------------------
+#---------------------------------------------
 # this class is needed to override close event method. I need to have the
-# equivalent of ctrl c in gui for read message, to show read messages to aws 
+# equivalent of ctrl c in gui for read message, to update status on aws 
 class WidgetStack(QtWidgets.QStackedWidget):
 
+    # this manage the scene switch
     sceneDict = {'home' : 0,
             'signup' : 1,
             'login' : 2,
@@ -31,6 +31,3 @@ class WidgetStack(QtWidgets.QStackedWidget):
             QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
             read.signalHandler(True, None, None)
         event.accept()
-
-if __name__ == '__main__':
-    main()
